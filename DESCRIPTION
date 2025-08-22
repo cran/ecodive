@@ -1,0 +1,39 @@
+Package: ecodive
+Type: Package
+Title: Parallel and Memory-Efficient Ecological Diversity Metrics
+Version: 1.0.0
+Date: 2025-08-18
+Authors@R: c(
+    person(
+      "Daniel P.", "Smith",
+      email   = "dansmith01@gmail.com",
+      role    = c("aut", "cre"),
+      comment = c(ORCID = "0000-0002-2479-2044")),
+    person(
+      "Alkek Center for Metagenomics and Microbiome Research", 
+      role = c("cph", "fnd") ))
+Description: 
+    Computes alpha and beta diversity metrics using concurrent 'C' threads.
+    Metrics include 'UniFrac', Faith's phylogenetic diversity, Bray-Curtis
+    dissimilarity, Shannon diversity index, and many others.
+    Also parses newick trees into 'phylo' objects and rarefies feature tables.
+URL: https://cmmr.github.io/ecodive/, https://github.com/cmmr/ecodive
+BugReports: https://github.com/cmmr/ecodive/issues
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 3.6.0)
+RoxygenNote: 7.3.2
+Config/Needs/website: rmarkdown
+Config/testthat/edition: 3
+Imports: parallel, utils
+Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
+VignetteBuilder: knitr
+NeedsCompilation: yes
+Packaged: 2025-08-18 22:41:52 UTC; Daniel
+Author: Daniel P. Smith [aut, cre] (ORCID:
+    <https://orcid.org/0000-0002-2479-2044>),
+  Alkek Center for Metagenomics and Microbiome Research [cph, fnd]
+Maintainer: Daniel P. Smith <dansmith01@gmail.com>
+Repository: CRAN
+Date/Publication: 2025-08-22 17:40:15 UTC
