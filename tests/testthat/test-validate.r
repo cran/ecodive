@@ -1,8 +1,18 @@
 test_that("validation", {
   
-  # validate_pairs() ==========================================================
-  
   env <- new.env()
+  
+  
+  
+  
+  # assert_integer_counts() ====
+  
+  env$counts <- counts_p
+  expect_error(assert_integer_counts(env))
+  
+  
+  
+  # validate_pairs() ====
   
   env$counts <- matrix(nrow = 5, ncol = 0)
   expect_error(validate_pairs(env))
@@ -20,24 +30,62 @@ test_that("validation", {
   env$pairs <- 2:5
   expect_silent(validate_pairs(env))
   
-  env$pairs <- c(F, F, T, T, T, F)
+  env$pairs <- c(F,F,T,T,T,F,F,F,F,F)
   expect_silent(validate_pairs(env))
   
   
   
   
-  # validate_alpha() ==========================================================
+  # validate_alpha() ====
   
   env$alpha <- 1L
-  validate_alpha(env)
+  expect_silent(validate_alpha(env))
   
   
   
   
-  # validate_tree() ===========================================================
+  # validate_cpus() ====
+  
+  env$cpus <- 1
+  expect_silent(validate_cpus(env))
+  
+  
+  
+  
+  # validate_power() ====
+  
+  env$power <- 1L
+  expect_silent(validate_power(env))
+  
+  
+  
+  
+  # validate_pseudocount() ====
+  
+  env$pseudocount <- NULL
+  expect_silent(validate_pseudocount(env))
+  
+  env$pseudocount <- 1L
+  expect_silent(validate_pseudocount(env))
+  
+  
+  
+  
+  # validate_rescale() ====
+  
+  env$rescale <- NULL
+  expect_error(validate_rescale(env))
+  
+  env$rescale <- 'a'
+  expect_error(validate_rescale(env))
+  
+  
+  
+  
+  # validate_tree() ====
   
   env$counts <- counts[1:3,,drop=FALSE]
-  tree2 <- tree
+  tree2      <- tree
   tree2$edge.length <- as.integer(tree$edge.length * 100)
   tree2$edge <- matrix(
     data     = as.numeric(tree$edge), 
@@ -45,12 +93,16 @@ test_that("validation", {
     ncol     = ncol(tree$edge),
     dimnames = dimnames(tree$edge) )
   env$tree <- tree2
-  validate_tree(env)
+  expect_silent(validate_tree(env))
+  
+  env$counts <- counts[,1:4,drop=FALSE]
+  env$tree   <- tree
+  expect_silent(validate_tree(env))
   
   
   
   
-  # validate_counts() =========================================================
+  # validate_counts() ====
   
   env$tree   <- NULL
   env$counts <- counts
@@ -64,6 +116,14 @@ test_that("validation", {
   convert_to_phyloseq <- do.call(`::`, list('rbiom', 'convert_to_phyloseq'))
   convert_to_TSE      <- do.call(`::`, list('rbiom', 'convert_to_TSE'))
   convert_to_SE       <- do.call(`::`, list('rbiom', 'convert_to_SE'))
+  
+  env$tree   <- NULL
+  env$counts <- 1:10
+  expect_silent(validate_counts(env))
+  
+  env$tree   <- NULL
+  env$counts <- t(hmp50$counts)
+  expect_silent(validate_counts(env))
   
   env$tree   <- NULL
   env$counts <- hmp50

@@ -3,14 +3,13 @@
 
 
 
-
 #' Number of CPU Cores
 #' 
-#' A thin wrapper around 
-#' `parallel::detectCores(all.tests = TRUE, logical = TRUE)` which falls back  
-#' to `1` when the number of CPU cores cannot be detected, or when the system 
-#' does not support `pthreads`. Consider using `parallely::availableCores()` 
-#' in place of `n_cpus()` for more advanced interrogation of system resources.
+#' A thin wrapper around `parallely::availableCores()`. If the `parallely`
+#' package is not installed, then it falls back to  
+#' `parallel::detectCores(all.tests = TRUE, logical = TRUE)`. Returns `1` if
+#' `pthread` support is unavailable or when the number of cpus cannot be
+#' determined.
 #' 
 #' @return   A scalar integer, guaranteed to be at least `1`.
 #' 
@@ -24,8 +23,17 @@ n_cpus <- function () {
   
   if (!n_cpus_cached) {
     n_cpus_cached <- 1L
+    
     if (pthreads()) {
-      n <- detectCores(all.tests = TRUE, logical = TRUE)
+      
+      if (nzchar(system.file(package = 'parallelly'))) {
+        n <- do.call(`::`, list('parallelly', 'availableCores'))()
+        n <- unname(n)
+      }
+      else {
+        n <- parallel::detectCores(all.tests = TRUE, logical = TRUE) # nocov
+      }
+      
       if (isTRUE(n > 0))
         n_cpus_cached <- n
     }
@@ -40,3 +48,22 @@ n_cpus_cached <- 0
 pthreads <- function () {
   .Call(C_pthreads)
 }
+
+
+
+TRANSFORM_PCT   <- 1L
+TRANSFORM_CLR   <- 2L
+TRANSFORM_CHORD <- 3L
+
+transform_pct <- function (counts, cpus = n_cpus()) {
+  .Call(C_transform, counts, TRANSFORM_PCT, cpus, NULL)
+}
+
+transform_clr <- function (counts, pseudocount, cpus = n_cpus()) {
+  .Call(C_transform, counts, TRANSFORM_CLR, cpus, pseudocount)
+}
+
+transform_chord <- function (counts, cpus = n_cpus()) {
+  .Call(C_transform, counts, TRANSFORM_CHORD, cpus, NULL)
+}
+

@@ -35,6 +35,7 @@ static double *edge_lengths;
 static node_t *nodes;
 static int     n_threads;
 static double *result_vec;
+static int     mtx_len;
 
 
 
@@ -55,12 +56,12 @@ static void *faith_result(void *arg) {
   
   for (int sample = thread_i; sample < n_samples; sample += n_threads) {
     
-    double *otu_vec = otu_mtx + (sample * n_otus);
     memset(has_edge_vec, 0, n_edges * sizeof(char));
     
     // mark the tree edges that this OTU uses
-    for (int otu = 0; otu < n_otus; otu++) {
-      if (otu_vec[otu] > 0) {         // OTU present in sample
+    int otu = 0;
+    for (int i = sample; i < mtx_len; i += n_samples) {
+      if (otu_mtx[i] > 0) {           // OTU present in sample
         int node = otu;               // start at OTU tip/leaf in tree
         while (node > -1) {           // traverse until we hit the tree's root
           char *has_edge = has_edge_vec + nodes[node].edge;
@@ -69,6 +70,7 @@ static void *faith_result(void *arg) {
           node = nodes[node].parent;  // proceed on up the tree
         }
       }
+      otu++;
     }
     
     double Faith = 0;
@@ -87,22 +89,23 @@ static void *faith_result(void *arg) {
 
 
 //======================================================
-// R interface. Dispatches threads on compute methods.
+// R interface. Dispatches threads.
 //======================================================
 SEXP C_faith(
-    SEXP sexp_otu_mtx,   SEXP sexp_phylo_tree,  
-    SEXP sexp_n_threads, SEXP sexp_result_vec ) {
+    SEXP sexp_otu_mtx,  SEXP sexp_phylo_tree,  
+    SEXP sexp_n_threads ) {
   
   otu_mtx   = REAL( sexp_otu_mtx);
-  n_otus    = nrows(sexp_otu_mtx);
-  n_samples = ncols(sexp_otu_mtx);
+  n_otus    = ncols(sexp_otu_mtx);
+  n_samples = nrows(sexp_otu_mtx);
+  
+  mtx_len = n_otus * n_samples;
   
   int *edge_mtx = INTEGER(get(sexp_phylo_tree, "edge"));
   n_edges       = nrows(  get(sexp_phylo_tree, "edge"));
   edge_lengths  = REAL(   get(sexp_phylo_tree, "edge.length"));
   
-  n_threads  = asInteger(sexp_n_threads);
-  result_vec = REAL(sexp_result_vec);
+  n_threads = asInteger(sexp_n_threads);
   
   
   // intermediary values
@@ -131,6 +134,18 @@ SEXP C_faith(
   }
   
   
+  // Create the diversity vector to return
+  SEXP sexp_result_vec = PROTECT(allocVector(REALSXP, n_samples));
+  result_vec           = REAL(sexp_result_vec);
+  SEXP sexp_mtx_dimnames = getAttrib(sexp_otu_mtx, R_DimNamesSymbol);
+  if (sexp_mtx_dimnames != R_NilValue) {
+    SEXP sexp_mtx_rownames = VECTOR_ELT(sexp_mtx_dimnames, 0);
+    if (sexp_mtx_rownames != R_NilValue) {
+      setAttrib(sexp_result_vec, R_NamesSymbol, sexp_mtx_rownames);
+    }
+  }
+  
+  
   // Run WITH multithreading
   #ifdef HAVE_PTHREAD
     if (n_threads > 1 && n_samples > 100) {
@@ -146,6 +161,7 @@ SEXP C_faith(
       
       free(tids); free(args); free(nodes);
       
+      UNPROTECT(1);
       return sexp_result_vec;
     }
   #endif
@@ -158,6 +174,7 @@ SEXP C_faith(
   
   free(nodes);
   
+  UNPROTECT(1);
   return sexp_result_vec;
 }
 

@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -349,15 +350,14 @@ for the feature of interest in your own data.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(ecodive)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>counts <span class="ot">&lt;-</span> <span class="fu">rarefy</span>(ex_counts)</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>counts</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt;                   Saliva Gums Nose Stool</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; Streptococcus        162  309    6     1</span></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; Bacteroides            2    2    0   341</span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; Corynebacterium        0    0  171     1</span></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt; Haemophilus          180   34    0     1</span></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; Propionibacterium      1    0   82     0</span></span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt; Staphylococcus         0    0   86     1</span></span></code></pre></div>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">t</span>(counts)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt;                   Saliva Gums Nose Stool</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt; Streptococcus        162  309    6     1</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; Bacteroides            2    2    0   341</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; Corynebacterium        0    0  171     1</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; Haemophilus          180   34    0     1</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt; Propionibacterium      1    0   82     0</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; Staphylococcus         0    0   86     1</span></span></code></pre></div>
 </div>
 <div id="beta-diversity" class="section level1">
 <h1>Beta Diversity</h1>
@@ -370,24 +370,28 @@ distance is <code>0</code> for identical samples and <code>1</code> for
 completely different samples.</p>
 <div id="weighted-vs-unweighted" class="section level2">
 <h2>Weighted vs Unweighted</h2>
-<p>The classic algorithms all run in weighted mode by default.
-Specifying <code>weighted = FALSE</code>,
-e.g. <code>canberra(counts, weighted = FALSE)</code> will switch them to
-unweighted mode.</p>
-<ul>
-<li><code>bray_curtis()</code>, <code>canberra()</code>,
-<code>euclidean()</code>, <code>gower()</code>, <code>jaccard()</code>,
-<code>kulczynski()</code>, <code>manhattan()</code></li>
-</ul>
-<p>For the UniFrac algorithms, <code>unweighted_unifrac()</code> is
-unweighted and all the others are weighted.</p>
-<ul>
-<li><p>Unweighted: <code>unweighted_unifrac()</code></p></li>
-<li><p>Weighted: <code>weighted_unifrac()</code>,
-<code>weighted_normalized_unifrac()</code>,
-<code>generalized_unifrac()</code>,
-<code>variance_adjusted_unifrac()</code></p></li>
-</ul>
+<p>Weighted metrics take relative abundances into account, whereas
+unweighted metrics only consider presence/absence. To determine which
+metrics are weighted or unweighted, consult
+<code>list_metrics()</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">list_metrics</span>(<span class="st">&#39;beta&#39;</span>, <span class="st">&#39;id&#39;</span>, <span class="at">weighted =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;sorensen&quot; &quot;hamming&quot;  &quot;jaccard&quot;  &quot;ochiai&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">list_metrics</span>(<span class="st">&#39;beta&#39;</span>, <span class="st">&#39;id&#39;</span>, <span class="at">weighted =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;aitchison&quot;                 &quot;bhattacharyya&quot;             &quot;bray&quot;                     </span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;canberra&quot;                  &quot;chebyshev&quot;                 &quot;chord&quot;                    </span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;clark&quot;                     &quot;divergence&quot;                &quot;euclidean&quot;                </span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; [10] &quot;generalized_unifrac&quot;       &quot;gower&quot;                     &quot;hellinger&quot;                </span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; [13] &quot;horn&quot;                      &quot;jensen&quot;                    &quot;jsd&quot;                      </span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; [16] &quot;lorentzian&quot;                &quot;manhattan&quot;                 &quot;matusita&quot;                 </span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; [19] &quot;minkowski&quot;                 &quot;morisita&quot;                  &quot;motyka&quot;                   </span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; [22] &quot;normalized_unifrac&quot;        &quot;psym_chisq&quot;                &quot;soergel&quot;                  </span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; [25] &quot;squared_chisq&quot;             &quot;squared_chord&quot;             &quot;squared_euclidean&quot;        </span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; [28] &quot;topsoe&quot;                    &quot;unweighted_unifrac&quot;        &quot;variance_adjusted_unifrac&quot;</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; [31] &quot;wave_hedges&quot;               &quot;weighted_unifrac&quot;</span></span></code></pre></div>
+<p>Note that <code>sorsensen()</code> is an unweighted version of
+<code>bray(rescale = FALSE)</code>, and <code>jaccard()</code> is an
+unweighted version of <code>soergel(rescale = FALSE)</code>.</p>
 </div>
 </div>
 <div id="partial-calculation" class="section level1">
@@ -395,58 +399,58 @@ unweighted and all the others are weighted.</p>
 <p>The default value of <code>pairs=NULL</code> in ecodive’s beta
 diversity functions results in the returned all-vs-all distance matrix
 being completely filled in.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">bray_curtis</span>(counts)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; Gums  0.4260870                    </span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; Nose  0.9797101 0.9826087          </span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; Stool 0.9884058 0.9884058 0.9913043</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">bray</span>(counts)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; Gums  0.4260870                    </span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Nose  0.9797101 0.9826087          </span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Stool 0.9884058 0.9884058 0.9913043</span></span></code></pre></div>
 <p>If you are doing a reference-vs-all comparison, you can use the
 <code>pairs</code> parameter to skip unwanted calculations and save some
 CPU time. The larger the dataset, the more noticeable the improvement
 will be.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">bray_curtis</span>(counts, <span class="at">pairs =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; Gums  0.4260870                    </span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Nose  0.9797101        NA          </span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Stool 0.9884058        NA        NA</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">bray</span>(counts, <span class="at">pairs =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; Gums  0.4260870                    </span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; Nose  0.9797101        NA          </span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; Stool 0.9884058        NA        NA</span></span></code></pre></div>
 <p>The <code>pairs</code> argument can be:</p>
 <ul>
 <li>A numeric vector, giving the positions in the result to
 calculate.</li>
 <li>A logical vector, indicating whether to calculate a position in the
 result.</li>
-<li>A <code>function(i,j)</code> that returns whether columns
+<li>A <code>function(i,j)</code> that returns whether rows
 <code>i</code> and <code>j</code> should be compared.</li>
 </ul>
 <p>Therefore, all of the following are equivalent:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">bray_curtis</span>(counts, <span class="at">pairs =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">bray_curtis</span>(counts, <span class="at">pairs =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>))</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">bray_curtis</span>(counts, <span class="at">pairs =</span> <span class="cf">function</span> (i, j) i <span class="sc">==</span> <span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">bray</span>(counts, <span class="at">pairs =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">bray</span>(counts, <span class="at">pairs =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>))</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">bray</span>(counts, <span class="at">pairs =</span> <span class="cf">function</span> (i, j) i <span class="sc">==</span> <span class="dv">1</span>)</span></code></pre></div>
 <p>The ordering of <code>pairs</code> follows the pairings produced by
 <code>combn()</code>.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Column index pairings</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">combn</span>(<span class="fu">ncol</span>(counts), <span class="dv">2</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6]</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; [1,]    1    1    1    2    2    3</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; [2,]    2    3    4    3    4    4</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co"># Sample name pairings</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="fu">combn</span>(<span class="fu">colnames</span>(counts), <span class="dv">2</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;      [,1]     [,2]     [,3]     [,4]   [,5]    [,6]   </span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; [1,] &quot;Saliva&quot; &quot;Saliva&quot; &quot;Saliva&quot; &quot;Gums&quot; &quot;Gums&quot;  &quot;Nose&quot; </span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; [2,] &quot;Gums&quot;   &quot;Nose&quot;   &quot;Stool&quot;  &quot;Nose&quot; &quot;Stool&quot; &quot;Stool&quot;</span></span></code></pre></div>
-<p>So, for instance, to use gums as the reference sample:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>my_combn <span class="ot">&lt;-</span> <span class="fu">combn</span>(<span class="fu">colnames</span>(counts), <span class="dv">2</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>my_pairs <span class="ot">&lt;-</span> my_combn[<span class="dv">1</span>,] <span class="sc">==</span> <span class="st">&#39;Gums&#39;</span> <span class="sc">|</span> my_combn[<span class="dv">2</span>,] <span class="sc">==</span> <span class="st">&#39;Gums&#39;</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>my_pairs</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [1]  TRUE FALSE FALSE  TRUE  TRUE FALSE</span></span>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Column index pairings</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">combn</span>(<span class="fu">nrow</span>(counts), <span class="dv">2</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6]</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [1,]    1    1    1    2    2    3</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [2,]    2    3    4    3    4    4</span></span>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="fu">bray_curtis</span>(counts, <span class="at">pairs =</span> my_pairs)</span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; Gums  0.4260870                    </span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; Nose         NA 0.9826087          </span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; Stool        NA 0.9884058        NA</span></span></code></pre></div>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># Sample name pairings</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">combn</span>(<span class="fu">rownames</span>(counts), <span class="dv">2</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt;      [,1]     [,2]     [,3]     [,4]   [,5]    [,6]   </span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; [1,] &quot;Saliva&quot; &quot;Saliva&quot; &quot;Saliva&quot; &quot;Gums&quot; &quot;Gums&quot;  &quot;Nose&quot; </span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; [2,] &quot;Gums&quot;   &quot;Nose&quot;   &quot;Stool&quot;  &quot;Nose&quot; &quot;Stool&quot; &quot;Stool&quot;</span></span></code></pre></div>
+<p>So, for instance, to use gums as the reference sample:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>my_combn <span class="ot">&lt;-</span> <span class="fu">combn</span>(<span class="fu">rownames</span>(counts), <span class="dv">2</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>my_pairs <span class="ot">&lt;-</span> my_combn[<span class="dv">1</span>,] <span class="sc">==</span> <span class="st">&#39;Gums&#39;</span> <span class="sc">|</span> my_combn[<span class="dv">2</span>,] <span class="sc">==</span> <span class="st">&#39;Gums&#39;</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>my_pairs</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; [1]  TRUE FALSE FALSE  TRUE  TRUE FALSE</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu">bray</span>(counts, <span class="at">pairs =</span> my_pairs)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; Gums  0.4260870                    </span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; Nose         NA 0.9826087          </span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; Stool        NA 0.9884058        NA</span></span></code></pre></div>
 </div>
 
 

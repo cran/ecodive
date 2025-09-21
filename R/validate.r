@@ -6,12 +6,34 @@
 validate_args <- function () {
   env  <- parent.frame()
   args <- ls(env)
-  for (arg in args[order(args != 'counts')])
+  
+  # move counts and pseudocount to head of the line
+  args <- unique(c(intersect(c('counts', 'pseudocount'), args), sort(args)))
+  
+  for (arg in args)
     do.call(paste0('validate_', arg), list(env))
 }
 
 
-validate_counts <- function (env) {
+validate_alpha <- function (env = parent.frame()) {
+  tryCatch(
+    with(env, {
+      
+      if (!inherits(alpha, 'numeric'))
+        alpha <- as.numeric(alpha)
+      
+      stopifnot(length(alpha) == 1)
+      stopifnot(!is.na(alpha))
+      stopifnot(alpha >= 0 && alpha <= 1)
+    }),
+    
+    error = function (e) 
+      stop(e$message, '\n`alpha` must be a single number between 0 and 1.')
+  )
+}
+
+
+validate_counts <- function (env = parent.frame()) {
   tryCatch(
     with(env, {
       
@@ -32,28 +54,31 @@ validate_counts <- function (env) {
         }
       }
       
-      # Pull counts matrix from complex counts object.
+      # Derive matrix from simple vector or complex object.
       if (!is.matrix(counts)) {
         
-        if (inherits(counts, 'phyloseq')) {
-          counts <- counts@otu_table
+        if (is.vector(counts)) {
+          counts <- matrix(data = counts, nrow = 1)
+        }
+        else if (inherits(counts, 'phyloseq')) {
+          counts <- t(as.matrix(counts@otu_table))
         }
         else if (inherits(counts, 'rbiom')) {
-          counts <- counts$counts
+          counts <- as.matrix(t(counts$counts))
         }
         else if (inherits(counts, 'TreeSummarizedExperiment')) {
-          counts <- counts@assays@data[[1]]
+          counts <- t(as.matrix(counts@assays@data[[1]]))
         }
         else if (inherits(counts, 'SummarizedExperiment')) {
-          counts <- counts@assays@data[[1]]
+          counts <- t(as.matrix(counts@assays@data[[1]]))
+        }
+        else {
+          counts <- as.matrix(counts)
         }
         
-        counts <- as.matrix(counts)
       }
       
-      stopifnot(is.numeric(counts))
       stopifnot(length(dim(counts)) == 2)
-      stopifnot(all(counts >= 0))
       stopifnot(nrow(counts) > 0)
       stopifnot(ncol(counts) > 0)
       
@@ -71,108 +96,7 @@ validate_counts <- function (env) {
 }
 
 
-validate_pairs <- function (env) {
-  
-  with(env, {
-    if (ncol(counts) < 2)
-      stop('`counts` must have at least two samples.')
-  })
-  
-  tryCatch(
-    with(env, {
-      n_samples   <- ncol(counts)
-      n_distances <- n_samples * (n_samples - 1) / 2
-      
-      if (is.null(pairs)) {
-        pairs <- as.integer(seq_len(n_distances) - 1)
-      }
-      else {
-        
-        if (is.function(pairs))
-          pairs <- local({
-            m <- combn(n_samples, 2)
-            mapply(pairs, m[1,], m[2,])
-          })
-        
-        if (is.logical(pairs)) {
-          if (length(pairs) != n_distances)
-            stop('logical vector `pairs` must have length ', n_distances)
-          pairs <- which(pairs)
-        }
-        else if (is.numeric(pairs)) {
-          if (any(pairs %% 1 > 0)) stop('non-integer values')
-          if (!all(pairs >= 1 & pairs <= n_distances))
-            stop('expected `pairs` values between 1 and ', n_distances)
-          pairs <- sort(unique(as.integer(pairs)))
-        }
-        else {
-          stop('cannot be ', typeof(pairs))
-        }
-        
-        pairs <- pairs - 1L
-      }
-      remove('n_samples', 'n_distances')
-    }),
-    
-    error = function (e) 
-      stop(e$message, '\n`pairs` must be a numeric or logical vector.')
-  )
-}
-
-
-validate_weighted <- function (env) {
-  tryCatch(
-    with(env, {
-      
-      if (!is.logical(weighted))
-        weighted <- as.logical(weighted)
-      
-      stopifnot(length(weighted) == 1)
-      stopifnot(!is.na(weighted))
-    }),
-    
-    error = function (e) 
-      stop(e$message, '\n`weighted` must be TRUE or FALSE.')
-  )
-}
-
-
-
-validate_newick <- function (env) {
-  tryCatch(
-    with(env, {
-      
-      stopifnot(is.character(newick))
-      stopifnot(length(newick) == 1)
-      stopifnot(!is.na(newick))
-      newick <- trimws(newick)
-      stopifnot(nchar(newick) > 0)
-    }),
-    
-    error = function (e) 
-      stop(e$message, '\n`newick` must be a character string.')
-  )
-}
-
-
-validate_underscores <- function (env) {
-  tryCatch(
-    with(env, {
-      
-      if (!is.logical(underscores))
-        underscores <- as.logical(underscores)
-      
-      stopifnot(length(underscores) == 1)
-      stopifnot(!is.na(underscores))
-    }),
-    
-    error = function (e) 
-      stop(e$message, '\n`underscores` must be TRUE or FALSE.')
-  )
-}
-
-
-validate_cpus <- function (env) {
+validate_cpus <- function (env = parent.frame()) {
   tryCatch(
     with(env, {
       
@@ -192,51 +116,27 @@ validate_cpus <- function (env) {
 }
 
 
-validate_seed <- function (env) {
+validate_cutoff <- function (env = parent.frame()) {
   tryCatch(
     with(env, {
       
-      stopifnot(is.numeric(seed))
-      stopifnot(length(seed) == 1)
-      stopifnot(!is.na(seed))
-      stopifnot(seed >= 2**31 * -1)
-      stopifnot(seed <= 2**31 - 1)
-      stopifnot(seed %% 1 == 0)
+      stopifnot(is.numeric(cutoff))
+      stopifnot(length(cutoff) == 1)
+      stopifnot(!is.na(cutoff))
+      stopifnot(cutoff > 0)
+      stopifnot(cutoff %% 1 == 0)
       
-      if (!is.integer(seed))
-        seed <- as.integer(seed)
+      cutoff <- as.integer(cutoff)
+      
     }),
     
     error = function (e) 
-      stop(e$message, '\n`seed` must be an integer between -2147483648 and 2147483647.')
+      stop(e$message, '\n`cutoff` must be a positive integer.')
   )
 }
 
 
-validate_times <- function (env) {
-  tryCatch(
-    with(env, {
-      
-      if (!is.null(times)) {
-        
-        stopifnot(is.numeric(times))
-        stopifnot(length(times) == 1)
-        stopifnot(!is.na(times))
-        stopifnot(times >= 0)
-        stopifnot(times %% 1 == 0)
-        
-        if (!is.integer(times))
-          times <- as.integer(times)
-      }
-    }),
-    
-    error = function (e) 
-      stop(e$message, '\n`times` must be an integer greater than 0.')
-  )
-}
-
-
-validate_depth <- function (env) {
+validate_depth <- function (env = parent.frame()) {
   tryCatch(
     with(env, {
       
@@ -259,12 +159,33 @@ validate_depth <- function (env) {
 }
 
 
-validate_n_samples <- function (env) {
+validate_digits <- function (env = parent.frame()) {
+  tryCatch(
+    with(env, {
+      
+      stopifnot(is.numeric(digits))
+      stopifnot(length(digits) == 1)
+      stopifnot(!is.na(digits))
+      stopifnot(digits >= 0)
+      stopifnot(digits <= 10)
+      stopifnot(digits %% 1 == 0)
+      
+      digits <- as.integer(digits)
+      
+    }),
+    
+    error = function (e) 
+      stop(e$message, '\n`digits` must be an integer between 0 and 10.')
+  )
+}
+
+
+validate_n_samples <- function (env = parent.frame()) {
   tryCatch(
     with(env, {
       
       if (!is.null(n_samples)) {
-      
+        
         stopifnot(is.numeric(n_samples))
         stopifnot(length(n_samples) == 1)
         stopifnot(!is.na(n_samples))
@@ -287,25 +208,170 @@ validate_n_samples <- function (env) {
 }
 
 
-validate_alpha <- function (env) {
+validate_newick <- function (env = parent.frame()) {
   tryCatch(
     with(env, {
       
-      if (!inherits(alpha, 'numeric'))
-        alpha <- as.numeric(alpha)
-      
-      stopifnot(length(alpha) == 1)
-      stopifnot(!is.na(alpha))
-      stopifnot(alpha >= 0 && alpha <= 1)
+      stopifnot(is.character(newick))
+      stopifnot(length(newick) == 1)
+      stopifnot(!is.na(newick))
+      newick <- trimws(newick)
+      stopifnot(nchar(newick) > 0)
     }),
     
     error = function (e) 
-      stop(e$message, '\n`alpha` must be a single number between 0 and 1.')
+      stop(e$message, '\n`newick` must be a character string.')
   )
 }
 
 
-validate_tree <- function (env) {
+validate_pairs <- function (env = parent.frame()) {
+  
+  with(env, {
+    if (ncol(counts) < 2)
+      stop('`counts` must have at least two samples.')
+  })
+  
+  tryCatch(
+    with(env, {
+      
+      if (!is.null(pairs)) {
+        
+        n_samples   <- ncol(counts)
+        n_distances <- n_samples * (n_samples - 1) / 2
+        
+        if (is.function(pairs))
+          pairs <- local({
+            m <- utils::combn(n_samples, 2)
+            mapply(pairs, m[1,], m[2,])
+          })
+        
+        if (is.logical(pairs)) {
+          if (length(pairs) != n_distances)
+            stop('logical vector `pairs` must have length ', n_distances)
+          pairs <- which(pairs)
+        }
+        else if (is.numeric(pairs)) {
+          if (any(pairs %% 1 > 0)) stop('non-integer values')
+          if (!all(pairs >= 1 & pairs <= n_distances))
+            stop('expected `pairs` values between 1 and ', n_distances)
+          pairs <- sort(unique(as.integer(pairs)))
+        }
+        else {
+          stop('cannot be ', typeof(pairs))
+        }
+        
+        pairs <- pairs - 1L
+        remove('n_samples', 'n_distances')
+      }
+    }),
+    
+    error = function (e) 
+      stop(e$message, '\n`pairs` must be a numeric or logical vector.')
+  )
+}
+
+
+validate_power <- function (env = parent.frame()) {
+  tryCatch(
+    with(env, {
+      
+      if (!inherits(power, 'numeric'))
+        power <- as.numeric(power)
+      
+      stopifnot(length(power) == 1)
+      stopifnot(!is.na(power))
+    }),
+    
+    error = function (e) 
+      stop(e$message, '\n`power` must be a single number.')
+  )
+}
+
+
+validate_pseudocount <- function (env = parent.frame()) {
+  tryCatch(
+    with(env, {
+      
+      if (is.null(pseudocount))
+        pseudocount <- min(counts[counts > 0])
+      
+      if (!inherits(pseudocount, 'numeric'))
+        pseudocount <- as.numeric(pseudocount)
+      
+      stopifnot(length(pseudocount) == 1)
+      stopifnot(!is.na(pseudocount))
+      stopifnot(pseudocount >= 0)
+    }),
+    
+    error = function (e) 
+      stop(e$message, '\n`pseudocount` must be a single positive number.')
+  )
+}
+
+
+validate_rescale <- function (env = parent.frame()) {
+  tryCatch(
+    with(env, {
+      
+      stopifnot(is.logical(rescale))
+      stopifnot(length(rescale) == 1)
+      
+      if (isTRUE(rescale))
+        counts <- transform_pct(counts)
+    }),
+    
+    error = function (e) 
+      stop(e$message, '\n`rescale` must be TRUE or FALSE.')
+  )
+}
+
+
+validate_seed <- function (env = parent.frame()) {
+  tryCatch(
+    with(env, {
+      
+      stopifnot(is.numeric(seed))
+      stopifnot(length(seed) == 1)
+      stopifnot(!is.na(seed))
+      stopifnot(seed >= 2**31 * -1)
+      stopifnot(seed <= 2**31 - 1)
+      stopifnot(seed %% 1 == 0)
+      
+      if (!is.integer(seed))
+        seed <- as.integer(seed)
+    }),
+    
+    error = function (e) 
+      stop(e$message, '\n`seed` must be an integer between -2147483648 and 2147483647.')
+  )
+}
+
+
+validate_times <- function (env = parent.frame()) {
+  tryCatch(
+    with(env, {
+      
+      if (!is.null(times)) {
+        
+        stopifnot(is.numeric(times))
+        stopifnot(length(times) == 1)
+        stopifnot(!is.na(times))
+        stopifnot(times >= 0)
+        stopifnot(times %% 1 == 0)
+        
+        if (!is.integer(times))
+          times <- as.integer(times)
+      }
+    }),
+    
+    error = function (e) 
+      stop(e$message, '\n`times` must be an integer greater than 0.')
+  )
+}
+
+
+validate_tree <- function (env = parent.frame()) {
   tryCatch(
     with(env, {
       
@@ -326,24 +392,51 @@ validate_tree <- function (env) {
         tree$edge.length <- as.numeric(tree$edge.length)
       
       stopifnot(hasName(tree, 'tip.label'))
-      stopifnot(!is.null(rownames(counts)))
-      stopifnot(all(rownames(counts) %in% tree$tip.label))
+      stopifnot(!is.null(colnames(counts)))
+      stopifnot(all(colnames(counts) %in% tree$tip.label))
       
-      missing <- setdiff(tree$tip.label, rownames(counts))
+      missing <- setdiff(tree$tip.label, colnames(counts))
       if (length(missing))
-        counts <- rbind(
+        counts <- cbind(
           counts, 
           matrix(
             data     = 0, 
-            nrow     = length(missing), 
-            ncol     = ncol(counts),
-            dimnames = list(missing, colnames(counts)) ))
+            nrow     = nrow(counts),
+            ncol     = length(missing), 
+            dimnames = list(rownames(counts), missing) ))
       remove('missing')
       
-      counts <- counts[as.character(tree$tip.label),,drop=FALSE]
+      counts <- counts[,as.character(tree$tip.label),drop=FALSE]
     }),
     
     error = function (e) 
       stop(e$message, '\n`tree` is not a valid phylo object.')
   )
+}
+
+
+validate_underscores <- function (env = parent.frame()) {
+  tryCatch(
+    with(env, {
+      
+      if (!is.logical(underscores))
+        underscores <- as.logical(underscores)
+      
+      stopifnot(length(underscores) == 1)
+      stopifnot(!is.na(underscores))
+    }),
+    
+    error = function (e) 
+      stop(e$message, '\n`underscores` must be TRUE or FALSE.')
+  )
+}
+
+
+
+
+assert_integer_counts <- function (env = parent.frame()) {
+  with(env, {
+    if (!all(counts %% 1 == 0))
+      stop('`counts` must be whole numbers (integers).')
+  })
 }

@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -352,7 +353,7 @@ how many times each bacterial genera was observed on different body
 sites.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(ecodive)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>ex_counts</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">t</span>(ex_counts)</span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt;                   Saliva Gums Nose Stool</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; Streptococcus        162  793   22     1</span></span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt; Bacteroides            2    4    2   611</span></span>
@@ -372,32 +373,73 @@ present in a sample. Depending on the metric, this can take into account
 the number of unique genera (richness), how evenly the population is
 split among genera (evenness), or how distantly related the genera are
 (phylogenetic diversity).</p>
+<p>The available alpha diversity metrics can be listed using
+<code>list_metrics()</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">list_metrics</span>(<span class="st">&#39;alpha&#39;</span>)[,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt;                                        name          id phylo weighted int_only</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; 1  Abundance-based Coverage Estimator (ACE)         ace FALSE     TRUE     TRUE</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; 3                       Berger-Parker Index      berger FALSE     TRUE    FALSE</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; 6                           Brillouin Index   brillouin FALSE     TRUE     TRUE</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 8                                     Chao1       chao1 FALSE     TRUE     TRUE</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; 15           Faith&#39;s Phylogenetic Diversity       faith  TRUE    FALSE    FALSE</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; 16                           Fisher&#39;s Alpha      fisher FALSE     TRUE     TRUE</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; 18                       Gini-Simpson Index     simpson FALSE     TRUE    FALSE</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; 23                    Inverse Simpson Index inv_simpson FALSE     TRUE    FALSE</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; 29                Margalef&#39;s Richness Index    margalef FALSE     TRUE     TRUE</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; 31                           McIntosh Index    mcintosh FALSE     TRUE     TRUE</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; 32               Menhinick&#39;s Richness Index   menhinick FALSE     TRUE     TRUE</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; 37                        Observed Features    observed FALSE    FALSE    FALSE</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; 40                  Shannon Diversity Index     shannon FALSE     TRUE    FALSE</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; 45               Squares Richness Estimator     squares FALSE     TRUE     TRUE</span></span></code></pre></div>
 <ul>
-<li><p>Classic metrics: <code>chao1()</code>, <code>shannon()</code>,
-<code>simpson()</code>, <code>inv_simpson()</code></p></li>
-<li><p>Phylogenetic metrics: <code>faith()</code></p></li>
-<li><p>Further reading: <code>vignette(&#39;adiv&#39;)</code></p></li>
+<li>Further reading: <code>vignette(&#39;adiv&#39;)</code></li>
 </ul>
 </div>
 <div id="beta-diversity" class="section level2">
 <h2>Beta Diversity</h2>
 <p>Beta diversity metrics describe how different two samples are, based
-on the genera observed in each. Also known as “distance” or
-“dissimilarity”. UniFrac metrics incorporate a phylogenetic tree into
-this calculation.</p>
-<ul>
-<li><p>Classic metrics: <code>bray_curtis()</code>,
-<code>canberra()</code>, <code>euclidean()</code>, <code>gower()</code>,
-<code>jaccard()</code>, <code>kulczynski()</code>,
-<code>manhattan()</code></p></li>
-<li><p>Phylogenetic metrics: <code>unweighted_unifrac()</code>,
-<code>weighted_unifrac()</code>,
-<code>weighted_normalized_unifrac()</code>,
-<code>generalized_unifrac()</code>,
-<code>variance_adjusted_unifrac()</code></p></li>
-<li><p>Further reading: <code>vignette(&#39;bdiv&#39;)</code> and
-<code>vignette(&#39;unifrac&#39;)</code>.</p></li>
-</ul>
+on the genera observed in each.UniFrac metrics incorporate a
+phylogenetic tree into this calculation.</p>
+<p>The available alpha diversity metrics can be listed using
+<code>list_metrics()</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">list_metrics</span>(<span class="st">&#39;beta&#39;</span>)[,<span class="dv">2</span><span class="sc">:</span><span class="dv">6</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;                           id phylo weighted int_only true_metric</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; 2                  aitchison FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; 4              bhattacharyya FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; 5                       bray FALSE     TRUE    FALSE       FALSE</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; 7                   canberra FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; 9                  chebyshev FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; 10                     chord FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; 11                     clark FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; 12                  sorensen FALSE    FALSE    FALSE       FALSE</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; 13                divergence FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; 14                 euclidean FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; 17       generalized_unifrac  TRUE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; 19                     gower FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; 20                   hamming FALSE    FALSE    FALSE        TRUE</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; 21                 hellinger FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; 22                      horn FALSE     TRUE    FALSE       FALSE</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; 24                   jaccard FALSE    FALSE    FALSE        TRUE</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; 25                    jensen FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; 26                       jsd FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; 27                lorentzian FALSE     TRUE    FALSE       FALSE</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; 28                 manhattan FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; 30                  matusita FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; 33                 minkowski FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; 34                  morisita FALSE     TRUE     TRUE       FALSE</span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; 35                    motyka FALSE     TRUE    FALSE       FALSE</span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt; 36        normalized_unifrac  TRUE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt; 38                    ochiai FALSE    FALSE    FALSE       FALSE</span></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt; 39                psym_chisq FALSE     TRUE    FALSE       FALSE</span></span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt; 41                   soergel FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt; 42             squared_chisq FALSE     TRUE    FALSE       FALSE</span></span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a><span class="co">#&gt; 43             squared_chord FALSE     TRUE    FALSE       FALSE</span></span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a><span class="co">#&gt; 44         squared_euclidean FALSE     TRUE    FALSE       FALSE</span></span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a><span class="co">#&gt; 46                    topsoe FALSE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a><span class="co">#&gt; 47        unweighted_unifrac  TRUE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a><span class="co">#&gt; 48 variance_adjusted_unifrac  TRUE     TRUE    FALSE        TRUE</span></span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a><span class="co">#&gt; 49               wave_hedges FALSE     TRUE    FALSE       FALSE</span></span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a><span class="co">#&gt; 50          weighted_unifrac  TRUE     TRUE    FALSE        TRUE</span></span></code></pre></div>
 </div>
 <div id="example" class="section level2">
 <h2>Example</h2>
@@ -411,24 +453,24 @@ the observed richness.</p>
 <p>The first step then is to rarefy <code>ex_counts</code> so that all
 samples have the same number of observations. Rarefying randomly removes
 observations from samples with more observations.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">colSums</span>(ex_counts)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; Saliva   Gums   Nose  Stool </span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt;    345    886   1011    615 </span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>counts <span class="ot">&lt;-</span> <span class="fu">rarefy</span>(ex_counts)</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">colSums</span>(counts)</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; Saliva   Gums   Nose  Stool </span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt;    345    345    345    345 </span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>counts</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt;                   Saliva Gums Nose Stool</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; Streptococcus        162  309    6     1</span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; Bacteroides            2    2    0   341</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; Corynebacterium        0    0  171     1</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; Haemophilus          180   34    0     1</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; Propionibacterium      1    0   82     0</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; Staphylococcus         0    0   86     1</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">rowSums</span>(ex_counts)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; Saliva   Gums   Nose  Stool </span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;    345    886   1011    615 </span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>counts <span class="ot">&lt;-</span> <span class="fu">rarefy</span>(ex_counts)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="fu">rowSums</span>(counts)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; Saliva   Gums   Nose  Stool </span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;    345    345    345    345 </span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="fu">t</span>(counts)</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt;                   Saliva Gums Nose Stool</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; Streptococcus        162  309    6     1</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; Bacteroides            2    2    0   341</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; Corynebacterium        0    0  171     1</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; Haemophilus          180   34    0     1</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; Propionibacterium      1    0   82     0</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; Staphylococcus         0    0   86     1</span></span></code></pre></div>
 </div>
 <div id="classic-metrics" class="section level3">
 <h3>Classic Metrics</h3>
@@ -436,26 +478,20 @@ observations from samples with more observations.</p>
 and don’t require a phylogenetic tree. The beta diversity functions can
 take a <code>weighted = FALSE</code> argument to use only
 presence/absence information instead of relative abundances.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="do">## Alpha Diversity -------------------</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">shannon</span>(counts)</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt;     Saliva       Gums       Nose      Stool </span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; 0.74119910 0.35692121 1.10615349 0.07927797 </span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="do">## Beta Diversity --------------------</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="fu">bray_curtis</span>(counts)</span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; Gums  0.4260870                    </span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; Nose  0.9797101 0.9826087          </span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; Stool 0.9884058 0.9884058 0.9913043</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="fu">bray_curtis</span>(counts, <span class="at">weighted =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; Gums  0.1428571                    </span></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; Nose  0.5000000 0.7142857          </span></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; Stool 0.3333333 0.2500000 0.3333333</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="do">## Alpha Diversity -------------------</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">shannon</span>(counts)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;     Saliva       Gums       Nose      Stool </span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 0.74119910 0.35692121 1.10615349 0.07927797 </span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="do">## Beta Diversity --------------------</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="fu">bray</span>(counts)</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; Gums  0.4260870                    </span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; Nose  0.9797101 0.9826087          </span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; Stool 0.9884058 0.9884058 0.9913043</span></span></code></pre></div>
 </div>
 <div id="phylogenetic-metrics" class="section level3">
 <h3>Phylogenetic Metrics</h3>
@@ -468,43 +504,43 @@ diversity) are examples of phylogenetic metrics.</p>
 phylogenetic tree for the genera in <code>ex_counts</code>. For your own
 datasets, you can use ecodive’s <code>read_tree()</code> function to
 import a phylogenetic tree from a newick formatted string or file.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="do">## Alpha Diversity -------------------</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">faith</span>(counts, <span class="at">tree =</span> ex_tree)</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; Saliva   Gums   Nose  Stool </span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;    180    155    101    202 </span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="do">## Beta Diversity --------------------</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">weighted_normalized_unifrac</span>(counts, <span class="at">tree =</span> ex_tree)</span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; Gums  0.4328662                    </span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; Nose  0.7928701 0.6767840          </span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; Stool 0.9677535 0.9829736 0.9936121</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="do">## Alpha Diversity -------------------</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">faith</span>(counts, <span class="at">tree =</span> ex_tree)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; Saliva   Gums   Nose  Stool </span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;    180    155    101    202 </span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="do">## Beta Diversity --------------------</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="fu">normalized_unifrac</span>(counts, <span class="at">tree =</span> ex_tree)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; Gums  0.4328662                    </span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; Nose  0.7928701 0.6767840          </span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; Stool 0.9677535 0.9829736 0.9936121</span></span></code></pre></div>
 </div>
 <div id="distance-matrices" class="section level3">
 <h3>Distance Matrices</h3>
 <p>Beta diversity functions return a <code>dist</code> object. You can
 convert this to a standard R matrix with the <code>as.matrix()</code>
 function.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>dm <span class="ot">&lt;-</span> <span class="fu">bray_curtis</span>(counts, <span class="at">weighted =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>dm</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Gums  0.1428571                    </span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; Nose  0.5000000 0.7142857          </span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; Stool 0.3333333 0.2500000 0.3333333</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>mtx <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(dm)</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>mtx</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;           Saliva      Gums      Nose     Stool</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; Saliva 0.0000000 0.1428571 0.5000000 0.3333333</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; Gums   0.1428571 0.0000000 0.7142857 0.2500000</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; Nose   0.5000000 0.7142857 0.0000000 0.3333333</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; Stool  0.3333333 0.2500000 0.3333333 0.0000000</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>mtx[<span class="st">&#39;Saliva&#39;</span>, <span class="st">&#39;Nose&#39;</span>]</span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; [1] 0.5</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>dm <span class="ot">&lt;-</span> <span class="fu">bray</span>(counts)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>dm</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt;          Saliva      Gums      Nose</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; Gums  0.1428571                    </span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; Nose  0.5000000 0.7142857          </span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; Stool 0.3333333 0.2500000 0.3333333</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>mtx <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(dm)</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>mtx</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;           Saliva      Gums      Nose     Stool</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; Saliva 0.0000000 0.1428571 0.5000000 0.3333333</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; Gums   0.1428571 0.0000000 0.7142857 0.2500000</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; Nose   0.5000000 0.7142857 0.0000000 0.3333333</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; Stool  0.3333333 0.2500000 0.3333333 0.0000000</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>mtx[<span class="st">&#39;Saliva&#39;</span>, <span class="st">&#39;Nose&#39;</span>]</span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; [1] 0.5</span></span></code></pre></div>
 </div>
 </div>
 

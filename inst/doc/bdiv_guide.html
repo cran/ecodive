@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Selecting a Beta Diversity Metric</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Selecting a Beta Diversity Metric</h1>
+
+
+
+<div id="a-practical-guide-to-metric-selection-aligning-method-with-research-question" class="section level2">
+<h2>A Practical Guide to Metric Selection:<br>Aligning Method with
+Research Question</h2>
+<p>The theoretical and mathematical properties of the various beta
+diversity metrics provide the foundation for making an informed choice.
+However, the ultimate decision must be driven by the specific research
+question and the nature of the dataset. This vignette provides a
+practical framework, including a decision tree and illustrative case
+studies, to guide researchers from their scientific question to an
+appropriate metric.</p>
+<div id="a-decision-tree-for-metric-selection" class="section level3">
+<h3>A Decision Tree for Metric Selection</h3>
+<p>This decision tree presents a series of questions to help a
+researcher systematically narrow the field of 37 metrics to a small,
+relevant subset.</p>
+<div id="do-you-have-a-reliable-phylogenetic-tree-relating-your-taxa-e.g.-asvsotus" class="section level4">
+<h4>1. Do you have a reliable phylogenetic tree relating your taxa
+(e.g., ASVs/OTUs)?</h4>
+<ul>
+<li><p><strong>YES:</strong> Your analysis can and likely should
+leverage phylogenetic information.</p>
+<ul>
+<li><p>Are you primarily interested in the presence/absence of entire
+evolutionary lineages (e.g., detecting the invasion of a novel phylum)?
+-&gt; Start with <u>Unweighted UniFrac</u>.</p></li>
+<li><p>Are you primarily interested in shifts in the abundance of major,
+well-established lineages (e.g., the Firmicutes/Bacteroidetes ratio)?
+-&gt; Start with <u>Weighted UniFrac</u>.</p></li>
+<li><p>Are you interested in a robust analysis that captures changes
+across rare, moderate, and abundant lineages, or are you unsure? -&gt;
+Use <u>Generalized UniFrac</u> (with α=0.5) as a powerful and balanced
+primary choice. Consider using <u>Variance-Adjusted Weighted UniFrac</u>
+for increased statistical power if you have uneven sample
+sizes.</p></li>
+</ul></li>
+<li><p><strong>NO:</strong> You must use a Non-Phylogenetic Metric.
+Proceed to Question 2.</p></li>
+</ul>
+</div>
+<div id="is-your-data-compositional-i.e.-relative-abundances-from-high-throughput-sequencing" class="section level4">
+<h4>2. Is your data compositional (i.e., relative abundances from
+high-throughput sequencing)?</h4>
+<ul>
+<li><p><strong>YES:</strong> You must account for the relative nature of
+your data.</p>
+<ul>
+<li><p>The most statistically rigorous approach is to use a
+compositional metric. -&gt; Your primary choice should be
+<u>Aitchison</u> distance. Be prepared to handle zeros using a
+pseudocount or other imputation method.</p></li>
+<li><p>If you choose to use a non-compositional metric, select one that
+is robust to transformations to proportions and less sensitive to
+extreme values. -&gt; Good secondary choices include <u>Hellinger</u>,
+<u>Jensen-Shannon Divergence</u>, or <u>Horn-Morisita</u>. Note that
+these do not fully address the compositionality issue but are often
+better behaved than Bray-Curtis or Euclidean on relative data.</p></li>
+</ul></li>
+<li><p><strong>NO:</strong> Your data represents absolute counts or
+measurements (e.g., from microscopy or quantitative PCR). Proceed to
+Question 3.</p></li>
+</ul>
+</div>
+<div id="what-is-the-primary-ecological-signal-you-want-to-detect" class="section level4">
+<h4>3. What is the primary ecological signal you want to detect?</h4>
+<ul>
+<li><p>Presence/Absence of specific taxa (Community Membership): You are
+interested in which species are present, regardless of their
+abundance.</p>
+<ul>
+<li>-&gt; Choose a Qualitative (Binary) Metric. Your best options are
+<u>Jaccard</u> (the standard for turnover) or <u>Dice-Sorensen</u>
+(which gives more weight to shared species).</li>
+</ul></li>
+<li><p>Shifts in the abundance of taxa (Community Structure): You are
+interested in which species are dominant and how their abundances
+change.</p>
+<ul>
+<li><p>-&gt; Choose a Quantitative Metric.</p>
+<ul>
+<li><p>If you want a robust, widely understood standard that is
+sensitive to dominant taxa -&gt; Use <u>Bray-Curtis</u>.</p></li>
+<li><p>If your data consists of raw integer counts and you are concerned
+about sample size effects -&gt; Use the <u>Morisita index</u>.</p></li>
+<li><p>If you want to down-weight the influence of hyper-dominant
+species for a more balanced view of abundance changes -&gt; Use the
+<u>Hellinger distance</u>.</p></li>
+<li><p>If you are concerned about small changes in very rare taxa being
+amplified -&gt; Avoid the Canberra distance.</p></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="case-studies-matching-metrics-to-microbiome-research-questions" class="section level3">
+<h3>Case Studies: Matching Metrics to Microbiome Research Questions</h3>
+<p>The following case studies illustrate how the choice of metric
+directly influences the ability to answer a specific biological
+question.</p>
+<div id="case-study-1-does-antibiotic-treatment-eliminate-specific-rare-potentially-pathogenic-taxa" class="section level4">
+<h4>Case Study 1: Does antibiotic treatment eliminate specific rare,
+potentially pathogenic taxa?</h4>
+<ul>
+<li><p><strong>Research Question:</strong> This question is explicitly
+about the presence or absence of key organisms, which are likely to be
+rare in the overall community. The massive shifts in abundant, commensal
+bacteria are secondary to the primary question of pathogen
+eradication.</p></li>
+<li><p><strong>Recommended Metric:</strong> <u>Jaccard</u> or
+<u>Unweighted UniFrac</u>.</p></li>
+<li><p><strong>Justification:</strong> A quantitative metric like
+Bray-Curtis would be dominated by the large-scale disruption of dominant
+taxa like Bacteroides or Faecalibacterium. The signal of the rare
+pathogen’s disappearance could be completely lost. In contrast, a
+qualitative metric like Jaccard treats the disappearance of the pathogen
+(a change from 1 to 0) as a significant event, directly addressing the
+research question. If a phylogenetic tree is available, Unweighted
+UniFrac is even better, as it would capture the loss of an entire
+evolutionary lineage, which might be more biologically meaningful than
+the loss of a single ASV.</p></li>
+</ul>
+</div>
+<div id="case-study-2-how-does-a-high-fiber-vs.-high-fat-diet-alter-the-overall-gut-microbiome-structure" class="section level4">
+<h4>Case Study 2: How does a high-fiber vs. high-fat diet alter the
+overall gut microbiome structure?</h4>
+<ul>
+<li><p><strong>Research Question:</strong> This question concerns broad,
+systemic shifts in the community’s metabolic capacity. The expected
+signal is a change in the abundance of major functional guilds—for
+example, an increase in fiber-degrading Firmicutes and a decrease in
+bile-acid-metabolizing bacteria.</p></li>
+<li><p><strong>Recommended Metrics:</strong> <u>Bray-Curtis</u> and
+<u>Hellinger</u>.</p></li>
+<li><p><strong>Justification:</strong> This question is about community
+structure and the abundance of major players. Bray-Curtis is an
+excellent choice as it is sensitive to these shifts in dominant and
+abundant taxa. Using Hellinger as a complementary metric is a robust
+strategy. The Hellinger distance, by using a square-root transformation,
+will down-weight the influence of the most hyper-dominant taxa,
+providing a slightly different and potentially more stable view of the
+overall structural change. If both metrics show a significant difference
+between diet groups, the conclusion is very strong.</p></li>
+</ul>
+</div>
+<div id="case-study-3-comparing-gut-communities-with-vastly-different-dominant-phyla-e.g.-bacteroidetes-dominant-vs.-firmicutes-dominant." class="section level4">
+<h4>Case Study 3: Comparing gut communities with vastly different
+dominant phyla (e.g., Bacteroidetes-dominant
+vs. Firmicutes-dominant).</h4>
+<ul>
+<li><p><strong>Research Question:</strong> The goal is to understand
+what other, more subtle structural differences exist between these two
+community types, beyond the obvious phylum-level dominance. Are the
+relative proportions of less abundant genera within the Proteobacteria
+different, for example?</p></li>
+<li><p><strong>Recommended Metric:</strong> <u>Aitchison
+distance</u>.</p></li>
+<li><p><strong>Justification:</strong> This is a classic
+compositionality problem. In a Bray-Curtis analysis, the massive
+difference in the abundance of Firmicutes vs. Bacteroidetes would create
+such a large distance between the two sample types that all other
+variation would be rendered invisible. The ordination plot would likely
+show two tight, distant clusters, but reveal nothing about the internal
+structure of those clusters. Aitchison distance, by using log-ratios,
+effectively normalizes for the dominant phylum and calculates the
+distance based on the relative proportions of all other taxa to one
+another. This allows the researcher to “see through” the dominance
+effect and investigate the more subtle structural differences that
+directly address the research question.</p></li>
+</ul>
+</div>
+<div id="case-study-4-are-the-microbial-communities-in-two-soil-types-different-due-to-the-loss-of-a-deep-evolutionary-lineage-or-due-to-shifts-within-the-same-major-families" class="section level4">
+<h4>Case Study 4: Are the microbial communities in two soil types
+different due to the loss of a deep evolutionary lineage or due to
+shifts within the same major families?</h4>
+<ul>
+<li><p><strong>Research Question:</strong> This question is explicitly
+phylogenetic and hierarchical. It seeks to distinguish between two
+distinct types of evolutionary change.</p></li>
+<li><p><strong>Recommended Metrics:</strong> <u>Generalized UniFrac
+(GUniFrac)</u> with varying alpha values, and comparison of
+<u>Unweighted and Weighted UniFrac</u>.</p></li>
+<li><p><strong>Justification:</strong> A non-phylogenetic metric cannot
+answer this question. The best approach is to use the GUniFrac
+framework. The researcher would calculate the distance matrix using
+multiple values of α (e.g., 0, 0.5, and 1). If the separation between
+soil types is most significant when α=0 (Unweighted UniFrac), it
+suggests the difference is driven by the presence/absence of entire
+clades (a deep evolutionary change). If the separation is strongest when
+α=1 (Weighted UniFrac), it suggests the difference is due to abundance
+shifts within lineages that are present in both soils (a shallow
+change). If the signal is strongest at α=0.5, it points to changes in
+moderately abundant taxa as the key drivers, providing the most nuanced
+answer.</p></li>
+</ul>
+<hr>
+<p><small> Content generated by Google Gemini. Verified and formatted by
+Daniel Smith. Sept. 5th, 2025. </small></p>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

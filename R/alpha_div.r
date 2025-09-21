@@ -2,222 +2,60 @@
 # Licensed under the MIT License: https://opensource.org/license/mit
 
 
-# References as given by
-# https://forum.qiime2.org/t/alpha-and-beta-diversity-explanations-and-commands/2282
+# Integer IDs for C code.
+ADIV_ACE         <-  1L
+ADIV_BERGER      <-  2L
+ADIV_BRILLOUIN   <-  3L
+ADIV_CHAO1       <-  4L
+ADIV_FISHER      <-  5L
+ADIV_INV_SIMPSON <-  6L
+ADIV_MARGALEF    <-  7L
+ADIV_MCINTOSH    <-  8L
+ADIV_MENHINICK   <-  9L
+ADIV_OBSERVED    <- 10L
+ADIV_SHANNON     <- 11L
+ADIV_SIMPSON     <- 12L
+ADIV_SQUARES     <- 13L
 
 
-#' Chao1
-#' 
-#' Chao1 alpha diversity metric.\cr\cr
-#' A non-parametric estimator of the number of unobserved species in a sample.
-#' The Chao1 index estimates total species richness based on the number of 
-#' species that occur only once (singletons) and twice (doubletons) in the 
-#' sample.
+#' Alpha Diversity Wrapper Function
 #' 
 #' @inherit documentation
-#' @family alpha_diversity
+#' @name alpha_div
+#' 
+#' @param metric   The name of an alpha diversity metric. One of `c('ace',
+#'   'berger', 'brillouin', 'chao1', 'faith', 'fisher', 'inv_simpson',
+#'   'margalef', 'mcintosh', 'menhinick', 'observed', 'shannon', 'simpson',
+#'   'squares')`. Case-insensitive and partial name matching is supported.
+#'   Programmatic access via `list_metrics('alpha')`.
+#'   
+#' @param ...  Additional options to pass through to the called function. I.e.
+#'   `cpus` or `tree`.
 #' 
 #' @return A numeric vector.
 #' 
-#' @section Calculation:
+#' @details
 #' 
-#' Prerequisite: all counts are whole numbers.
+#' ## Integer Count Requirements
 #' 
-#' In the formulas below, `x` is a single column (sample) from `counts`. 
-#' \eqn{n} is the total number of non-zero OTUs, \eqn{a} is the number of 
-#' singletons, and \eqn{b} is the number of doubletons.
+#' A frequent and critical error in alpha diversity analysis is providing the
+#' wrong type of data to a metric's formula. Some indices are mathematically
+#' defined based on counts of individuals and require raw, integer abundance
+#' data. Others are based on proportional abundances and can accept either
+#' integer counts (which are then converted to proportions) or pre-normalized
+#' proportional data. Using proportional data with a metric that requires
+#' integer counts will return an error message.
 #' 
-#' \deqn{D = \displaystyle n + \frac{a^{2}}{2b}}
+#' | Requires Integer Counts Only | Can Use Proportional Data     |
+#' | :--------------------------  | :---------------------------- |
+#' | Chao1                        | Observed Features             |
+#' | ACE                          | Shannon Index                 |
+#' | Squares Richness Estimator   | Gini-Simpson Index            |
+#' | Margalef's Index             | Inverse Simpson Index         |
+#' | Menhinick's Index            | Berger-Parker Index           |
+#' | Fisher's Alpha               | McIntosh Index                |
+#' | Brillouin Index              | Faith's PD (presence/absence) |
 #' 
-#' ```
-#'   x <- c(1, 0, 3, 2, 6)
-#'   sum(x>0) + (sum(x==1) ^ 2) / (2 * sum(x==2))  
-#'   #>  4.5
-#' ```
-#' 
-#' Note that when \eqn{x} does not have any singletons or doubletons 
-#' (\eqn{a = 0, b = 0}), the result will be `NaN`. When \eqn{x} has singletons
-#' but no doubletons (\eqn{a > 0, b = 0}), the result will be `Inf`.
-#' 
-#' @references
-#' 
-#' Chao A 1984.
-#' Non-parametric estimation of the number of classes in a population.
-#' Scandinavian Journal of Statistics, 11:265-270.
-#' 
-#' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Chao1 diversity values
-#'     chao1(ex_counts)
-#'     
-#'     # Low diversity
-#'     chao1(c(100, 1, 1, 1, 1)) # Inf
-#'     
-#'     # High diversity
-#'     chao1(c(20, 20, 20, 20, 20)) # NaN
-#'     
-#'     # Low richness
-#'     chao1(1:3) # 3.5
-#'     
-#'     # High richness
-#'     chao1(1:100) # 100.5
-#'     
-chao1 <- function (counts, cpus = n_cpus()) {
-  
-  validate_args()
-  result_vec <- init_result_vec(counts)
-  
-  .Call(
-    C_alpha_div, 1L, 
-    counts, cpus, result_vec )
-}
-
-
-#' Faith's PD
-#' 
-#' Faith's phylogenetic diversity metric.\cr\cr
-#' A higher value indicates a greater amount of evolutionary history 
-#' represented within the community, suggesting higher biodiversity in terms of 
-#' evolutionary relationships.
-#' 
-#' @inherit documentation
-#' @family alpha_diversity
-#' 
-#' @return A numeric vector.
-#' 
-#' @section Calculation:
-#' 
-#' Given \eqn{n} branches with lengths \eqn{L} and a sample's
-#' abundances on each of those branches coded as 1 for present or 0 for absent:
-#' 
-#' \deqn{\sum_{i = 1}^{n} P_i \times L_i}
-#' 
-#' @references
-#' 
-#' Faith DP 1992.
-#' Conservation evaluation and phylogenetic diversity.
-#' Biological Conservation, 61:1-10.
-#' \doi{10.1016/0006-3207(92)91201-3}
-#' 
-#' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Faith diversity values
-#'     faith(ex_counts, tree = ex_tree)
-#'     
-faith <- function (counts, tree = NULL, cpus = n_cpus()) {
-  
-  validate_args()
-  result_vec <- init_result_vec(counts)
-  
-  .Call(
-    C_faith, 
-    counts, tree, cpus, result_vec )
-}
-
-
-#' Inverse Simpson
-#' 
-#' Inverse Simpson alpha diversity metric.
-#' 
-#' @inherit documentation
-#' @family alpha_diversity
-#' 
-#' @return A numeric vector.
-#' 
-#' @section Calculation:
-#' 
-#' Pre-transformation: drop all OTUs with zero abundance.
-#' 
-#' In the formulas below, \eqn{x} is a single column (sample) from `counts`.
-#' \eqn{p} are the relative abundances.
-#' 
-#' \deqn{p_{i} = \displaystyle \frac{x_i}{\sum x}}
-#' \deqn{D = \displaystyle 1 / \sum_{i = 1}^{n} p_{i}\times\ln(p_{i})}
-#' 
-#' ```
-#'   x <- c(4, 0, 3, 2, 6)[-2]  
-#'   p <- x / sum(x)
-#'   1 / sum(p * log(p))
-#'   #>  -0.7636352
-#' ```
-#' 
-#' @references
-#' 
-#' Simpson EH 1949.
-#' Measurement of diversity.
-#' Nature, 163.
-#' \doi{10.1038/163688a0}
-#' 
-#' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Inverse Simpson diversity values
-#'     inv_simpson(ex_counts)
-#'     
-#'     # Low diversity
-#'     inv_simpson(c(100, 1, 1, 1, 1)) # 1.08
-#'     
-#'     # High diversity
-#'     inv_simpson(c(20, 20, 20, 20, 20)) # 5
-#'     
-#'     # Low richness
-#'     inv_simpson(1:3) # 2.57
-#'     
-#'     # High richness
-#'     inv_simpson(1:100) # 75.37
-#'     
-inv_simpson <- function (counts, cpus = n_cpus()) {
-  
-  validate_args()
-  result_vec <- init_result_vec(counts)
-  
-  .Call(
-    C_alpha_div, 2L, 
-    counts, cpus, result_vec )
-}
-
-
-#' Shannon
-#' 
-#' Shannon alpha diversity metric.\cr\cr
-#' The index considers both the number of different OTUs (richness) and how 
-#' evenly the observations are distributed among those OTUs (evenness).
-#' 
-#' @inherit documentation
-#' @family alpha_diversity
-#' 
-#' @return A numeric vector.
-#' 
-#' @section Calculation:
-#' 
-#' Pre-transformation: drop all OTUs with zero abundance.
-#' 
-#' In the formulas below, \eqn{x} is a single column (sample) from `counts`.
-#' \eqn{p_i} is the proportion of the \eqn{i}-th OTU in the total community.
-#' 
-#' \deqn{p_{i} = \displaystyle \frac{x_i}{\sum x}}
-#' \deqn{D = \displaystyle -\sum_{i = 1}^{n} p_{i}\times\ln(p_{i})}
-#' 
-#' ```
-#'   x <- c(4, 0, 3, 2, 6)[-2]  
-#'   p <- x / sum(x)
-#'   -sum(p * log(p))
-#'   #>  1.309526
-#' ```
-#' 
-#' @references
-#' 
-#' Shannon CE, Weaver W 1949.
-#' The Mathematical Theory of Communication.
-#' University of Illinois Press.
 #' 
 #' @export
 #' @examples
@@ -225,104 +63,279 @@ inv_simpson <- function (counts, cpus = n_cpus()) {
 #'     ex_counts
 #'     
 #'     # Shannon diversity values
-#'     shannon(ex_counts)
+#'     alpha_div(ex_counts, 'Shannon')
 #'     
-#'     # Low diversity
-#'     shannon(c(100, 1, 1, 1, 1)) # 0.22
+#'     # Chao1 diversity values
+#'     alpha_div(ex_counts, 'c')
 #'     
-#'     # High diversity
-#'     shannon(c(20, 20, 20, 20, 20)) # 1.61
+#'     # Faith PD values
+#'     alpha_div(ex_counts, 'faith', tree = ex_tree)
 #'     
-#'     # Low richness
-#'     shannon(1:3) # 1.01
 #'     
-#'     # High richness
-#'     shannon(1:100) # 4.42
-#'     
-shannon <- function (counts, cpus = n_cpus()) {
-  
-  validate_args()
-  result_vec <- init_result_vec(counts)
-  
-  .Call(
-    C_alpha_div, 3L, 
-    counts, cpus, result_vec )
+alpha_div <- function (counts, metric, ...) {
+  match_metric(metric, div = 'alpha')$func(counts = counts, ...)
 }
 
 
-#' Simpson
+
+
+
+#' Alpha Diversity Metrics
 #' 
-#' Simpson alpha diversity metric.\cr\cr
-#' Gauges the uniformity of species within a community. A Simpson index of `0` 
-#' indicates that one or a few high abundance OTUs dominate the community, 
-#' which is indicative of low diversity.
 #' 
 #' @inherit documentation
-#' @family alpha_diversity
+#' @name adiv_functions
+#' @family adiv_functions
 #' 
 #' @return A numeric vector.
 #' 
-#' @section Calculation:
 #' 
-#' Pre-transformation: drop all OTUs with zero abundance.
+#' @section Formulas:
 #' 
-#' In the formulas below, \eqn{x} is a single column (sample) from `counts`.
-#' \eqn{p} are the relative abundances.
+#' Prerequisite: all counts are whole numbers.
 #' 
-#' \deqn{p_{i} = \displaystyle \frac{x_i}{\sum x}}
-#' \deqn{D = \displaystyle 1 - \sum_{i = 1}^{n} p_{i}\times\ln(p_{i})}
+#' Given:
 #' 
-#' ```
-#'   x <- c(4, 0, 3, 2, 6)[-2]  
-#'   p <- x / sum(x)
-#'   1 - sum(p * log(p))
-#'   #>  2.309526
-#' ```
+#' * \eqn{n} : The number of features (e.g. species, OTUs, ASVs, etc).
+#' * \eqn{X_i} : Integer count of the \eqn{i}-th feature.
+#' * \eqn{X_T} : Total of all counts (i.e. sequencing depth). \eqn{X_T = \sum_{i=1}^{n} X_i}
+#' * \eqn{P_i} : Proportional abundance of the \eqn{i}-th feature. \eqn{P_i = X_i / X_T}
+#' * \eqn{F_1} : Number of features where \eqn{X_i = 1} (i.e. singletons).
+#' * \eqn{F_2} : Number of features where \eqn{X_i = 2} (i.e. doubletons).
 #' 
-#' @references
+#' |              |                                    |
+#' | :----------- | :--------------------------------- |
+#' | **Abundance-based Coverage Estimator (ACE)** <br> `ace()`         | See below. |
+#' | **Berger-Parker Index**                      <br> `berger()`      | \eqn{\max(P_i)} |
+#' | **Brillouin Index**                          <br> `brillouin()`   | \eqn{\displaystyle \frac{\ln{[(\sum_{i = 1}^{n} X_i)!]} - \sum_{i = 1}^{n} \ln{(X_i!)}}{\sum_{i = 1}^{n} X_i}} |
+#' | **Chao1**                                    <br> `chao1()`       | \eqn{\displaystyle n + \frac{(F_1)^2}{2 F_2}} |
+#' | **Faith's Phylogenetic Diversity**           <br> `faith()`       | See below. |
+#' | **Fisher's Alpha (\eqn{\alpha})**            <br> `fisher()`      | \eqn{\displaystyle \frac{n}{\alpha} = \ln{\left(1 + \frac{X_T}{\alpha}\right)}} <br> The value of \eqn{\alpha} must be solved for iteratively. |
+#' | **Gini-Simpson Index**                       <br> `simpson()`     | \eqn{1 - \sum_{i = 1}^{n} P_i^2} |
+#' | **Inverse Simpson Index**                    <br> `inv_simpson()` | \eqn{1 / \sum_{i = 1}^{n} P_i^2} |
+#' | **Margalef's Richness Index**                <br> `margalef()`    | \eqn{\displaystyle \frac{n - 1}{\ln{X_T}}} |
+#' | **McIntosh Index**                           <br> `mcintosh()`    | \eqn{\displaystyle \frac{X_T - \sqrt{\sum_{i = 1}^{n} (X_i)^2}}{X_T - \sqrt{X_T}}} |
+#' | **Menhinick's Richness Index**               <br> `menhinick()`   | \eqn{\displaystyle \frac{n}{\sqrt{X_T}}} |
+#' | **Observed Features**                        <br> `observed()`    | \eqn{n} |
+#' | **Shannon Diversity Index**                  <br> `shannon()`     | \eqn{-\sum_{i = 1}^{n} P_i \times \ln(P_i)} |
+#' | **Squares Richness Estimator**               <br> `squares()`     | \eqn{\displaystyle n + \frac{(F_1)^2 \sum_{i=1}^{n} (X_i)^2}{X_T^2 - nF_1}} |
 #' 
-#' Simpson EH 1949.
-#' Measurement of diversity.
-#' Nature, 163.
-#' \doi{10.1038/163688a0}
+#' 
+#' ## Abundance-based Coverage Estimator (ACE)
+#' 
+#' Given:
+#' * \eqn{n} : The number of features (e.g. species, OTUs, ASVs, etc).
+#' * \eqn{r} : Rare cutoff. Features with \eqn{\le r} counts are considered rare.
+#' * \eqn{X_i} : Integer count of the \eqn{i}-th feature.
+#' * \eqn{F_i} : Number of features with exactly \eqn{i} counts.
+#' * \eqn{F_1} : Number of features where \eqn{X_i = 1} (i.e. singletons).
+#' * \eqn{F_{rare}} : Number of rare features where \eqn{X_i \le r}.
+#' * \eqn{F_{abund}} : Number of abundant features where \eqn{X_i > r}.
+#' * \eqn{X_{rare}} : Total counts belonging to rare features.
+#' * \eqn{C_{ace}} : The sample abundance coverage estimator, defined below.
+#' * \eqn{\gamma_{ace}^2} : The estimated coefficient of variation, defined below.
+#' * \eqn{D_{ace}} : Estimated number of features in the sample.
+#' 
+#' \eqn{\displaystyle C_{ace} = 1 - \frac{F_1}{X_{rare}}}
+#' 
+#' \eqn{\displaystyle \gamma_{ace}^2 = \max\left[\frac{F_{rare} \sum_{i=1}^{r}i(i-1)F_i}{C_{ace}X_{rare}(X_{rare} - 1)} - 1, 0\right]}
+#' 
+#' \eqn{\displaystyle D_{ace} = F_{abund} + \frac{F_{rare}}{C_{ace}} + \frac{F_1}{C_{ace}}\gamma_{ace}^2 }
+#' 
+#' 
+#' 
+#' 
+#' ## Faith's Phylogenetic Diversity (Faith's PD)
+#' 
+#' Given \eqn{n} branches with lengths \eqn{L} and a sample's abundances 
+#' \eqn{A} on each of those branches coded as 1 for present or 0 for absent:
+#' 
+#' \eqn{\sum_{i = 1}^{n} L_i A_i}
+#' 
 #' 
 #' @export
 #' @examples
 #'     # Example counts matrix
-#'     ex_counts
+#'     t(ex_counts)
 #'     
-#'     # Simpson diversity values
-#'     simpson(ex_counts)
+#'     ace(ex_counts)
 #'     
-#'     # Low diversity
-#'     simpson(c(100, 1, 1, 1, 1)) # 0.075
+#'     chao1(ex_counts)
 #'     
-#'     # High diversity
-#'     simpson(c(20, 20, 20, 20, 20)) # 0.8
+#'     squares(ex_counts)
 #'     
-#'     # Low richness
-#'     simpson(1:3) # 0.61
-#'     
-#'     # High richness
-#'     simpson(1:100) # 0.99
-#'     
-simpson <- function (counts, cpus = n_cpus()) {
+NULL
+
+
+#  Abundance-based Coverage Estimator (ACE)
+#' @export
+#' @rdname adiv_functions
+ace <- function (counts, cutoff = 10, cpus = n_cpus()) {
   
   validate_args()
-  result_vec <- init_result_vec(counts)
+  assert_integer_counts()
   
-  .Call(
-    C_alpha_div, 4L, 
-    counts, cpus, result_vec )
+  .Call(C_alpha_div, ADIV_ACE, counts, cpus, cutoff)
 }
 
 
+#  Berger-Parker
+#  max(x / sum(x))
+#' @export
+#' @rdname adiv_functions
+berger <- function (counts, rescale = TRUE, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_alpha_div, ADIV_BERGER, counts, cpus, NULL)
+}
 
 
+#  Brillouin Index
+#  note: lgamma(x + 1) == log(x!)
+#  (lgamma(sum(x) + 1) - sum(lgamma(x + 1))) / sum(x)
+#' @export
+#' @rdname adiv_functions
+brillouin <- function (counts, cpus = n_cpus()) {
+  
+  validate_args()
+  assert_integer_counts()
+  
+  .Call(C_alpha_div, ADIV_BRILLOUIN, counts, cpus, NULL)
+}
 
 
-init_result_vec <- function (counts) {
-  result_vec        <- rep(NA_real_, ncol(counts))
-  names(result_vec) <- colnames(counts)
-  return (result_vec)
+#  Chao1
+#  sum(x>0) + (sum(x == 1) ** 2) / (2 * sum(x == 2))
+#' @export
+#' @rdname adiv_functions
+chao1 <- function (counts, cpus = n_cpus()) {
+  
+  validate_args()
+  assert_integer_counts()
+  
+  .Call(C_alpha_div, ADIV_CHAO1, counts, cpus, NULL)
+}
+
+
+#  Faith's Phylogenetic Diversity
+#' @export
+#' @rdname adiv_functions
+faith <- function (counts, tree = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_faith, counts, tree, cpus)
+}
+
+
+#  Fisher's Alpha
+#' @export
+#' @rdname adiv_functions
+fisher <- function (counts, digits = 3L, cpus = n_cpus()) {
+  
+  validate_args()
+  assert_integer_counts()
+  
+  .Call(C_alpha_div, ADIV_FISHER, counts, cpus, digits)
+}
+
+
+#  Inverse Simpson Index
+#  p <- x / sum(x)
+#  1 / sum(p ** 2)
+#' @export
+#' @rdname adiv_functions
+inv_simpson <- function (counts, rescale = TRUE, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_alpha_div, ADIV_INV_SIMPSON, counts, cpus, NULL)
+}
+
+
+#  Margalef's Richness Index
+#  (sum(x > 0) - 1) / log(sum(x))
+#' @export
+#' @rdname adiv_functions
+margalef <- function (counts, cpus = n_cpus()) {
+  
+  validate_args()
+  assert_integer_counts()
+  
+  .Call(C_alpha_div, ADIV_MARGALEF, counts, cpus, NULL)
+}
+
+
+#  McIntosh Index
+#  (sum(x) - sqrt(sum(x^2))) / (sum(x) - sqrt(sum(x)))
+#' @export
+#' @rdname adiv_functions
+mcintosh <- function (counts, cpus = n_cpus()) {
+  
+  validate_args()
+  assert_integer_counts()
+  
+  .Call(C_alpha_div, ADIV_MCINTOSH, counts, cpus, NULL)
+}
+
+
+#  Menhinick's Richness Index
+#  sum(x > 0) / sqrt(sum(x))
+#' @export
+#' @rdname adiv_functions
+menhinick <- function (counts, cpus = n_cpus()) {
+  
+  validate_args()
+  assert_integer_counts()
+  
+  .Call(C_alpha_div, ADIV_MENHINICK, counts, cpus, NULL)
+}
+
+
+#  Observed Features
+#  sum(x>0)
+#' @export
+#' @rdname adiv_functions
+observed <- function (counts, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_alpha_div, ADIV_OBSERVED, counts, cpus, NULL)
+}
+
+
+#  Shannon Diversity Index
+#  p <- x / sum(x)
+#  -sum(p * log(p))
+#' @export
+#' @rdname adiv_functions
+shannon <- function (counts, rescale = TRUE, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_alpha_div, ADIV_SHANNON, counts, cpus, NULL)
+}
+
+
+#  Gini-Simpson Index
+#  p <- x / sum(x)
+#  1 - sum(p ** 2)
+#' @export
+#' @rdname adiv_functions
+simpson <- function (counts, rescale = TRUE, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_alpha_div, ADIV_SIMPSON, counts, cpus, NULL)
+}
+
+
+#  Squares Richness Estimator
+#  N  <- sum(x)      # sampling depth
+#  S  <- sum(x > 0)  # observed features
+#  F1 <- sum(x == 1) # singletons
+#  S + ((sum(x^2) * (F1^2)) / ((N^2) - F1 * S))
+#' @export
+#' @rdname adiv_functions
+squares <- function (counts, cpus = n_cpus()) {
+  
+  validate_args()
+  assert_integer_counts()
+  
+  .Call(C_alpha_div, ADIV_SQUARES, counts, cpus, NULL)
 }

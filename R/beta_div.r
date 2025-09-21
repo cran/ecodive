@@ -2,731 +2,679 @@
 # Licensed under the MIT License: https://opensource.org/license/mit
 
 
-# Formulas as given by
-# help('vegdist', 'vegan')
+# Integer IDs for C code.
+BDIV_BHATTACHARYYA <-  1L
+BDIV_BRAY          <-  2L
+BDIV_CANBERRA      <-  3L
+BDIV_CHEBYSHEV     <-  4L
+BDIV_CLARK         <-  6L
+BDIV_DIVERGENCE    <-  7L
+BDIV_EUCLIDEAN     <-  8L
+BDIV_GOWER         <-  9L
+BDIV_HAMMING       <- 10L
+BDIV_HORN          <- 11L
+BDIV_JACCARD       <- 12L
+BDIV_JSD           <- 13L
+BDIV_LORENTZIAN    <- 14L
+BDIV_MANHATTAN     <- 15L
+BDIV_MINKOWSKI     <- 16L
+BDIV_MORISITA      <- 17L
+BDIV_MOTYKA        <- 18L
+BDIV_OCHIAI        <- 19L
+BDIV_SOERGEL       <- 20L
+BDIV_SORENSEN      <- 21L
+BDIV_SQUARED_CHISQ <- 22L
+BDIV_SQUARED_CHORD <- 23L
+BDIV_WAVE_HEDGES   <- 24L
 
-# References as given by
-# https://forum.qiime2.org/t/alpha-and-beta-diversity-explanations-and-commands/2282
+U_UNIFRAC <- 1L
+W_UNIFRAC <- 2L
+N_UNIFRAC <- 3L
+G_UNIFRAC <- 4L
+V_UNIFRAC <- 5L
 
 
-#' Bray-Curtis
-#' 
-#' Bray-Curtis beta diversity metric.
+
+#' Beta Diversity Wrapper Function
 #' 
 #' @inherit documentation
-#' @family beta_diversity
+#' @name beta_div
 #' 
-#' @return A `dist` object.
+#' @param metric   The name of a beta diversity metric. One of `c('aitchison',
+#'   'bhattacharyya', 'bray', 'canberra', 'chebyshev', 'chord', 'clark',
+#'   'divergence', 'euclidean', 'generalized_unifrac', 'gower', 'hamming',
+#'   'hellinger', 'horn', 'jaccard', 'jensen', 'jsd', 'lorentzian', 'manhattan',
+#'   'matusita', 'minkowski', 'morisita', 'motyka', 'normalized_unifrac',
+#'   'ochiai', 'psym_chisq', 'soergel', 'sorensen', 'squared_chisq',
+#'   'squared_chord', 'squared_euclidean', 'topsoe', 'unweighted_unifrac',
+#'   'variance_adjusted_unifrac', 'wave_hedges', 'weighted_unifrac')`. Flexible
+#'   matching is supported (see below). Programmatic access via
+#'   `list_metrics('beta')`.
+#'   
+#' @param ...  Additional options to pass through to the called function. I.e.
+#'   `tree`, `pairs`, `alpha`, or `cpus`.
 #' 
-#' @section Calculation:
+#' @return A numeric vector.
 #' 
-#' In the formulas below, `x` and `y` are two columns (samples) from `counts`. 
-#' `n` is the number of rows (OTUs) in `counts`.
 #' 
-#' \deqn{D = \displaystyle \frac{\sum_{i = 1}^{n} |x_i - y_i|}{\sum_{i = 1}^{n} (x_i + y_i)}}
+#' @details
 #' 
-#' ```
-#'   x <- c(4, 0, 3, 2, 6)
-#'   y <- c(0, 8, 0, 0, 5)
-#'   sum(abs(x-y)) / sum(x+y)  
-#'   #>  0.6428571
-#' ```
+#' **List of Beta Diversity Metrics**
 #' 
-#' @references
+#' | Option / Function Name      | Metric Name                                      |
+#' | :-------------------------- | :----------------------------------------------- |
+#' | `aitchison`                 | Aitchison distance                               |
+#' | `bhattacharyya`             | Bhattacharyya distance                           |
+#' | `bray`                      | Bray-Curtis dissimilarity                        |
+#' | `canberra`                  | Canberra distance                                |
+#' | `chebyshev`                 | Chebyshev distance                               |
+#' | `chord`                     | Chord distance                                   |
+#' | `clark`                     | Clark's divergence distance                      |
+#' | `divergence`                | Divergence                                       |
+#' | `euclidean`                 | Euclidean distance                               |
+#' | `generalized_unifrac`       | Generalized UniFrac (GUniFrac)                   |
+#' | `gower`                     | Gower distance                                   |
+#' | `hamming`                   | Hamming distance                                 |
+#' | `hellinger`                 | Hellinger distance                               |
+#' | `horn`                      | Horn-Morisita dissimilarity                      |
+#' | `jaccard`                   | Jaccard distance                                 |
+#' | `jensen`                    | Jensen-Shannon distance                          |
+#' | `jsd`                       | Jesen-Shannon divergence (JSD)                   |
+#' | `lorentzian`                | Lorentzian distance                              |
+#' | `manhattan`                 | Manhattan distance                               |
+#' | `matusita`                  | Matusita distance                                |
+#' | `minkowski`                 | Minkowski distance                               |
+#' | `morisita`                  | Morisita dissimilarity                           |
+#' | `motyka`                    | Motyka dissimilarity                             |
+#' | `normalized_unifrac`        | Normalized Weighted UniFrac                      |
+#' | `ochiai`                    | Otsuka-Ochiai dissimilarity                      |
+#' | `psym_chisq`                | Probabilistic Symmetric Chi-Squared distance     |
+#' | `soergel`                   | Soergel distance                                 |
+#' | `sorensen`                  | Dice-Sorensen dissimilarity                      |
+#' | `squared_chisq`             | Squared Chi-Squared distance                     |
+#' | `squared_chord`             | Squared Chord distance                           |
+#' | `squared_euclidean`         | Squared Euclidean distance                       |
+#' | `topsoe`                    | Topsoe distance                                  |
+#' | `unweighted_unifrac`        | Unweighted UniFrac                               |
+#' | `variance_adjusted_unifrac` | Variance-Adjusted Weighted UniFrac (VAW-UniFrac) |
+#' | `wave_hedges`               | Wave Hedges distance                             |
+#' | `weighted_unifrac`          | Weighted UniFrac                                 |
 #' 
-#' Sorenson T 1948.
-#' A method of establishing groups of equal amplitude in plant sociology based on similarity of species content.
-#' Kongelige Danske Videnskabernes Selskab, 5.
 #' 
-#' Bray JR and Curtis JT 1957.
-#' An ordination of the upland forest communities of southern Wisconsin.
-#' Ecological Monographs, 27(4).
-#' \doi{10.2307/1942268}
+#' 
+#' 
+#' 
+#' 
+#' **Flexible name matching**
+#' 
+#' Case insensitive and partial matching. Any runs of non-alpha characters are
+#' converted to underscores. E.g. `metric = 'Weighted UniFrac` selects
+#' `weighted_unifrac`.
+#' 
+#' UniFrac names can be shortened to the first letter plus "unifrac". E.g. 
+#' `uunifrac`, `w_unifrac`, or `V UniFrac`. These also support partial matching.
+#' 
+#' Finished code should always use the full primary option name to avoid
+#' ambiguity with future additions to the metrics list.
+#' 
 #' 
 #' @export
 #' @examples
 #'     # Example counts matrix
 #'     ex_counts
 #'     
-#'     # Bray-Curtis weighted distance matrix
-#'     bray_curtis(ex_counts)
+#'     # Bray-Curtis distances
+#'     beta_div(ex_counts, 'bray')
 #'     
-#'     # Bray-Curtis unweighted distance matrix
-#'     bray_curtis(ex_counts, weighted = FALSE)
+#'     # Generalized UniFrac distances
+#'     beta_div(ex_counts, 'GUniFrac', tree = ex_tree)
 #'     
-#'     # Only calculate distances for A vs all.
-#'     bray_curtis(ex_counts, pairs = 1:3)
-#'     
-bray_curtis <- function (
-    counts, 
-    weighted = TRUE, 
-    pairs    = NULL, 
-    cpus     = n_cpus()) {
-  
-  validate_args()
-  result_dist <- init_result_dist(counts)
-  
-  .Call(
-    C_beta_div, 1L, 
-    counts, weighted, pairs, cpus, result_dist )
+beta_div <- function (counts, metric, ...) {
+  match_metric(metric, div = 'beta')$func(counts = counts, ...)
 }
 
 
-#' Canberra
-#' 
-#' Canberra beta diversity metric.
+
+
+
+#' Beta Diversity Metrics
 #' 
 #' @inherit documentation
-#' @family beta_diversity
+#' @name bdiv_functions
+#' @family bdiv_functions
 #' 
 #' @return A `dist` object.
 #' 
-#' @section Calculation:
 #' 
-#' In the formulas below, `x` and `y` are two columns (samples) from `counts`. 
-#' `n` is the number of rows (OTUs) in `counts`.
+#' @section Formulas:
 #' 
-#' OTUs must be removed if they are absent from both samples.
+#' Given:
 #' 
-#' \deqn{D = \displaystyle \frac{1}{n}\sum_{i = 1}^{n} \frac{|x_i - y_i|}{x_i + y_i}}
+#' * \eqn{n} : The number of features.
+#' * \eqn{X_i}, \eqn{Y_i} : Absolute counts for the \eqn{i}-th feature in samples \eqn{X} and \eqn{Y}.
+#' * \eqn{X_T}, \eqn{Y_T} : Total counts in each sample. \eqn{X_T = \sum_{i=1}^{n} X_i}
+#' * \eqn{P_i}, \eqn{Q_i} : Proportional abundances of \eqn{X_i} and \eqn{Y_i}. \eqn{P_i = X_i / X_T}
+#' * \eqn{X_L}, \eqn{Y_L} : Mean log of abundances. \eqn{X_L = \frac{1}{n}\sum_{i=1}^{n} \ln{X_i}}
+#' * \eqn{R_i} : The range of the \eqn{i}-th feature across all samples (max - min).
 #' 
-#' ```
-#'   x <- c(4, 0, 3, 0, 6)[-4]
-#'   y <- c(0, 8, 0, 0, 5)[-4]
-#'   sum(abs(x-y) / (x+y)) / length(x)  
-#'   #>  0.7727273
-#' ```
+#' |              |                                    |
+#' | :----------- | :--------------------------------- |
+#' | **Aitchison distance**                            <br> `aitchison()`         | \eqn{\sqrt{\sum_{i=1}^{n} [(\ln{X_i} - X_L) - (\ln{Y_i} - Y_L)]^2}} |
+#' | **Bhattacharyya distance**                        <br> `bhattacharyya()`     | \eqn{-\ln{\sum_{i=1}^{n}\sqrt{P_{i}Q_{i}}}} |
+#' | **Bray-Curtis dissimilarity**                     <br> `bray()`              | \eqn{\displaystyle \frac{\sum_{i=1}^{n} |P_i - Q_i|}{\sum_{i=1}^{n} (P_i + Q_i)}} |
+#' | **Canberra distance**                             <br> `canberra()`          | \eqn{\displaystyle \sum_{i=1}^{n} \frac{|P_i - Q_i|}{P_i + Q_i}} |
+#' | **Chebyshev distance**                            <br> `chebyshev()`         | \eqn{\max(|P_i - Q_i|)} |
+#' | **Chord distance**                                <br> `chord()`             | \eqn{\displaystyle \sqrt{\sum_{i=1}^{n} \left(\frac{X_i}{\sqrt{\sum_{j=1}^{n} X_j^2}} - \frac{Y_i}{\sqrt{\sum_{j=1}^{n} Y_j^2}}\right)^2}} |
+#' | **Clark's divergence distance**                   <br> `clark()`             | \eqn{\displaystyle \sqrt{\sum_{i=1}^{n}\left(\frac{P_i - Q_i}{P_i + Q_i}\right)^{2}}} |
+#' | **Divergence**                                    <br> `divergence()`        | \eqn{\displaystyle 2\sum_{i=1}^{n} \frac{(P_i - Q_i)^2}{(P_i + Q_i)^2}} |
+#' | **Euclidean distance**                            <br> `euclidean()`         | \eqn{\sqrt{\sum_{i=1}^{n} (P_i - Q_i)^2}} |
+#' | **Gower distance**                                <br> `gower()`             | \eqn{\displaystyle \frac{1}{n}\sum_{i=1}^{n}\frac{|P_i - Q_i|}{R_i}} |
+#' | **Hellinger distance**                            <br> `hellinger()`         | \eqn{\sqrt{\sum_{i=1}^{n}(\sqrt{P_i} - \sqrt{Q_i})^{2}}} |
+#' | **Horn-Morisita dissimilarity**                   <br> `horn()`              | \eqn{\displaystyle 1 - \frac{2\sum_{i=1}^{n}P_{i}Q_{i}}{\sum_{i=1}^{n}P_i^2 + \sum_{i=1}^{n}Q_i^2}} |
+#' | **Jensen-Shannon distance**                       <br> `jensen()`            | \eqn{\displaystyle \sqrt{\frac{1}{2}\left[\sum_{i=1}^{n}P_i\ln\left(\frac{2P_i}{P_i + Q_i}\right) + \sum_{i=1}^{n}Q_i\ln\left(\frac{2Q_i}{P_i + Q_i}\right)\right]}} |
+#' | **Jensen-Shannon divergence (JSD)**               <br> `jsd()`               | \eqn{\displaystyle \frac{1}{2}\left[\sum_{i=1}^{n}P_i\ln\left(\frac{2P_i}{P_i + Q_i}\right) + \sum_{i=1}^{n}Q_i\ln\left(\frac{2Q_i}{P_i + Q_i}\right)\right]} |
+#' | **Lorentzian distance**                           <br> `lorentzian()`        | \eqn{\sum_{i=1}^{n}\ln{(1 + |P_i - Q_i|)}} |
+#' | **Manhattan distance**                            <br> `manhattan()`         | \eqn{\sum_{i=1}^{n} |P_i - Q_i|} |
+#' | **Matusita distance**                             <br> `matusita()`          | \eqn{\sqrt{\sum_{i=1}^{n}\left(\sqrt{P_i} - \sqrt{Q_i}\right)^2}} |
+#' | **Minkowski distance**                            <br> `minkowski()`         | \eqn{\sqrt[p]{\sum_{i=1}^{n} (P_i - Q_i)^p}} <br> Where \eqn{p} is the geometry of the space. |
+#' | **Morisita dissimilarity** <br> * Integers Only   <br> `morisita()`          | \eqn{\displaystyle 1 - \frac{2\sum_{i=1}^{n}X_{i}Y_{i}}{\displaystyle \left(\frac{\sum_{i=1}^{n}X_i(X_i - 1)}{X_T(X_T - 1)} + \frac{\sum_{i=1}^{n}Y_i(Y_i - 1)}{Y_T(Y_T - 1)}\right)X_{T}Y_{T}}} |
+#' | **Motyka dissimilarity**                          <br> `motyka()`            | \eqn{\displaystyle \frac{\sum_{i=1}^{n} \max(P_i, Q_i)}{\sum_{i=1}^{n} (P_i + Q_i)}} |
+#' | **Probabilistic Symmetric \eqn{\chi^2} distance** <br> `psym_chisq()`        | \eqn{\displaystyle 2\sum_{i=1}^{n}\frac{(P_i - Q_i)^2}{P_i + Q_i}} |
+#' | **Soergel distance**                              <br> `soergel()`           | \eqn{\displaystyle \frac{\sum_{i=1}^{n} |P_i - Q_i|}{\sum_{i=1}^{n} \max(P_i, Q_i)}} |
+#' | **Squared \eqn{\chi^2} distance**                 <br> `squared_chisq()`     | \eqn{\displaystyle \sum_{i=1}^{n}\frac{(P_i - Q_i)^2}{P_i + Q_i}} |
+#' | **Squared Chord distance**                        <br> `squared_chord()`     | \eqn{\sum_{i=1}^{n}\left(\sqrt{P_i} - \sqrt{Q_i}\right)^2} |
+#' | **Squared Euclidean distance**                    <br> `squared_euclidean()` | \eqn{\sum_{i=1}^{n} (P_i - Q_i)^2} |
+#' | **Topsoe distance**                               <br> `topsoe()`            | \eqn{\displaystyle \sum_{i=1}^{n}P_i\ln\left(\frac{2P_i}{P_i + Q_i}\right) + \sum_{i=1}^{n}Q_i\ln\left(\frac{2Q_i}{P_i + Q_i}\right)} |
+#' | **Wave Hedges distance**                          <br> `wave_hedges()`       | \eqn{\displaystyle \frac{\sum_{i=1}^{n} |P_i - Q_i|}{\sum_{i=1}^{n} \max(P_i, Q_i)}} |
 #' 
-#' @references
 #' 
-#' Lance GN and Williams WT 1967.
-#' A general theory of classificatory sorting strategies II. Clustering systems.
-#' The computer journal, 10(3).
-#' \doi{10.1093/comjnl/10.3.271}
+#' ## Presence / Absence
 #' 
-#' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Gower weighted distance matrix
-#'     canberra(ex_counts)
-#'     
-#'     # Gower unweighted distance matrix
-#'     canberra(ex_counts, weighted = FALSE)
-#'     
-#'     # Only calculate distances for A vs all.
-#'     canberra(ex_counts, pairs = 1:3)
-#'     
-canberra <- function (
-    counts, 
-    weighted = TRUE, 
-    pairs    = NULL, 
-    cpus     = n_cpus() ) {
-  
-  validate_args()
-  result_dist <- init_result_dist(counts)
-  
-  .Call(
-    C_beta_div, 2L, 
-    counts, weighted, pairs, cpus, result_dist )
-}
-
-
-#' Euclidean
+#' Given:
 #' 
-#' Euclidean beta diversity metric.
+#' * \eqn{A}, \eqn{B} : Number of features in each sample.
+#' * \eqn{J} : Number of features in common.
 #' 
-#' @inherit documentation
-#' @family beta_diversity
+#' |                   |                             |
+#' | :---------------- | :-------------------------- |
+#' | **Dice-Sorensen dissimilarity** <br> `sorensen()` | \eqn{\displaystyle \frac{2J}{(A + B)}}         |
+#' | **Hamming distance**            <br> `hamming()`  | \eqn{\displaystyle (A + B) - 2J}               |
+#' | **Jaccard distance**            <br> `jaccard()`  | \eqn{\displaystyle 1 - \frac{J}{(A + B - J)]}} |
+#' | **Otsuka-Ochiai dissimilarity** <br> `ochiai()`   | \eqn{\displaystyle 1 - \frac{J}{\sqrt{AB}}}   |
 #' 
-#' @return A `dist` object.
 #' 
-#' @section Calculation:
+#' ## Phylogenetic
 #' 
-#' In the formulas below, `x` and `y` are two columns (samples) from `counts`. 
-#' `n` is the number of rows (OTUs) in `counts`.
+#' Given \eqn{n} branches with lengths \eqn{L} and a pair of samples' binary
+#' (\eqn{A} and \eqn{B}) or proportional abundances (\eqn{P} and \eqn{Q}) on
+#' each of those branches.
 #' 
-#' \deqn{D = \displaystyle \sqrt{\sum_{i = 1}^{n} (x_i - y_i)^{2}}}
+#' |              |              |
+#' | :----------- | :----------- |
+#' | **Unweighted UniFrac**                  <br> `unweighted_unifrac()`        | \eqn{\displaystyle \frac{1}{n}\sum_{i=1}^{n} L_i|A_i - B_i|} |
+#' | **Weighted UniFrac**                    <br> `weighted_unifrac()`          | \eqn{\displaystyle \sum_{i=1}^{n} L_i|P_i - Q_i|} |
+#' | **Normalized Weighted UniFrac**         <br> `normalized_unifrac()`        | \eqn{\displaystyle \frac{\sum_{i=1}^{n} L_i|P_i - Q_i|}{\sum_{i=1}^{n} L_i(P_i + Q_i)}} |
+#' | **Generalized UniFrac (GUniFrac)**      <br> `generalized_unifrac()`       | \eqn{\displaystyle \frac{\sum_{i=1}^{n} L_i(P_i + Q_i)^{\alpha}\left|\displaystyle \frac{P_i - Q_i}{P_i + Q_i}\right|}{\sum_{i=1}^{n} L_i(P_i + Q_i)^{\alpha}}} <br> Where \eqn{\alpha} is a scalable weighting factor. |
+#' | **Variance-Adjusted Weighted UniFrac**  <br> `variance_adjusted_unifrac()` | \eqn{\displaystyle \frac{\displaystyle \sum_{i=1}^{n} L_i\displaystyle \frac{|P_i - Q_i|}{\sqrt{(P_i + Q_i)(2 - P_i - Q_i)}} }{\displaystyle \sum_{i=1}^{n} L_i\displaystyle \frac{P_i + Q_i}{\sqrt{(P_i + Q_i)(2 - P_i - Q_i)}} }} |
 #' 
-#' ```
-#'   x <- c(4, 0, 3, 2, 6)  
-#'   y <- c(0, 8, 0, 0, 5)  
-#'   sqrt(sum((x-y)^2))
-#'   #>  9.69536
-#' ```
+#' See `vignette('unifrac')` for detailed example UniFrac calculations.
 #' 
-#' @references
-#' 
-#' Gower JC, Legendre P 1986.
-#' Metric and Euclidean Properties of Dissimilarity Coefficients.
-#' Journal of Classification. 3.
-#'  \doi{10.1007/BF01896809}
-#' 
-#' Legendre P, Caceres M 2013.
-#' Beta diversity as the variance of community data: dissimilarity coefficients and partitioning.
-#' Ecology Letters. 16(8).
-#' \doi{10.1111/ele.12141}
-#' 
-#' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Euclidean weighted distance matrix
-#'     euclidean(ex_counts)
-#'     
-#'     # Euclidean unweighted distance matrix
-#'     euclidean(ex_counts, weighted = FALSE)
-#'     
-#'     # Only calculate distances for A vs all.
-#'     euclidean(ex_counts, pairs = 1:3)
-#'     
-euclidean <- function (
-    counts, 
-    weighted = TRUE, 
-    pairs    = NULL, 
-    cpus     = n_cpus() ) {
-  
-  validate_args()
-  result_dist <- init_result_dist(counts)
-  
-  .Call(
-    C_beta_div, 3L, 
-    counts, weighted, pairs, cpus, result_dist )
-}
-
-
-#' Gower
-#' 
-#' Gower beta diversity metric.
-#' 
-#' @inherit documentation
-#' @family beta_diversity
-#' 
-#' @return A `dist` object.
-#' 
-#' @section Calculation:
-#' 
-#' Each row (OTU) of `counts` is rescaled to the range 0-1. In cases where a 
-#' row is all the same value, those values are replaced with `0`.
-#' 
-#'     counts                 scaled recounts
-#'          A B C  D                 A   B   C D  
-#'     OTU1 0 0 0  0    ->    OTU1 0.0 0.0 0.0 0
-#'     OTU2 0 8 9 10    ->    OTU2 0.0 0.8 0.9 1
-#'     OTU3 5 5 5  5    ->    OTU3 0.0 0.0 0.0 0
-#'     OTU4 2 0 0  0    ->    OTU4 1.0 0.0 0.0 0
-#'     OTU5 4 6 4  1    ->    OTU5 0.6 1.0 0.6 0
-#' 
-#' In the formulas below, `x` and `y` are two columns (samples) from the scaled 
-#' counts. `n` is the number of rows (OTUs) in `counts`.
-#' 
-#' \deqn{D = \displaystyle \frac{1}{n}\sum_{i = 1}^{n} |x_i - y_i|}
-#' 
-#' ```
-#'   x <- c(0, 0, 0, 1, 0.6)
-#'   y <- c(0, 0.8, 0, 0, 1)
-#'   sum(abs(x-y)) / length(x)  
-#'   #>  0.44
-#' ```
 #' 
 #' @references
 #' 
-#' Gower JC 1971.
-#' A general coefficient of similarity and some of its properties.
-#' Biometrics. 27(4).
-#'  \doi{10.2307/2528823}
+#' Levy, A., Shalom, B. R., & Chalamish, M. (2024). A guide to similarity
+#' measures. *arXiv*.
 #' 
-#' Gower JC, Legendre P 1986.
-#' Metric and Euclidean Properties of Dissimilarity Coefficients.
-#' Journal of Classification. 3.
-#'  \doi{10.1007/BF01896809}
+#' Cha, S.-H. (2007). Comprehensive survey on distance/similarity measures
+#' between probability density functions. *International Journal of Mathematical
+#' Models and Methods in Applied Sciences*, 1(4), 300–307.
 #' 
 #' 
 #' @export
 #' @examples
 #'     # Example counts matrix
-#'     ex_counts
+#'     t(ex_counts)
 #'     
-#'     # Gower weighted distance matrix
-#'     gower(ex_counts)
+#'     bray(ex_counts)
 #'     
-#'     # Gower unweighted distance matrix
-#'     gower(ex_counts, weighted = FALSE)
-#'     
-#'     # Only calculate distances for A vs all.
-#'     gower(ex_counts, pairs = 1:3)
-#'     
-gower <- function (
-    counts, 
-    weighted = TRUE, 
-    pairs    = NULL, 
-    cpus     = n_cpus() ) {
-  
-  validate_args()
-  result_dist <- init_result_dist(counts)
-  
-  .Call(
-    C_gower, 
-    counts, weighted, pairs, cpus, result_dist )
-}
-
-
-#' Jaccard
-#' 
-#' Jaccard beta diversity metric.
-#' 
-#' @inherit documentation
-#' @family beta_diversity
-#' 
-#' @return A `dist` object.
-#' 
-#' @section Calculation:
-#' 
-#' In the formulas below, `x` and `y` are two columns (samples) from `counts`. 
-#' `n` is the number of rows (OTUs) in `counts`.
-#' 
-#' \deqn{b = \displaystyle \frac{\sum_{i = 1}^{n} |x_i - y_i|}{\sum_{i = 1}^{n} x_i + y_i}}
-#' \deqn{D = \displaystyle \frac{2b}{1 + b}}
-#' 
-#' ```
-#'   x <- c(4, 0, 3, 2, 6)  
-#'   y <- c(0, 8, 0, 0, 5)  
-#'   bray <- sum(abs(x-y)) / sum(x+y)  
-#'   2 * bray / (1 + bray)
-#'   #>  0.7826087
-#' ```
-#' 
-#' @references
-#' 
-#' Jaccard P 1908.
-#' Nouvellesrecherches sur la distribution florale.
-#' Bulletin de la Societe Vaudoise des Sciences Naturelles, 44(163).
-#' \doi{10.5169/seals-268384}
-#' 
-#' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Jaccard weighted distance matrix
 #'     jaccard(ex_counts)
 #'     
-#'     # Jaccard unweighted distance matrix
-#'     jaccard(ex_counts, weighted = FALSE)
+#'     generalized_unifrac(ex_counts, tree = ex_tree)
 #'     
-#'     # Only calculate distances for A vs all.
-#'     jaccard(ex_counts, pairs = 1:3)
+#'     # Only calculate distances for Saliva vs all.
+#'     bray(ex_counts, pairs = 1:3)
 #'     
-jaccard <- function (
-    counts, 
-    weighted = TRUE, 
-    pairs    = NULL, 
-    cpus     = n_cpus() ) {
+NULL
+
+#  Aitchison
+#   x <- log((x + pseudocount) / exp(mean(log(x + pseudocount))))
+#   y <- log((y + pseudocount) / exp(mean(log(y + pseudocount))))
+#   sqrt(sum((x-y)^2)) # Euclidean distance
+#' @export
+#' @rdname bdiv_functions
+aitchison <- function (counts, pseudocount = NULL, pairs = NULL, cpus = n_cpus()) {
   
   validate_args()
-  result_dist <- init_result_dist(counts)
   
-  .Call(
-    C_beta_div, 4L, 
-    counts, weighted, pairs, cpus, result_dist )
+  counts <- transform_clr(counts, pseudocount)
+  
+  .Call(C_beta_div, BDIV_EUCLIDEAN, counts, pairs, cpus, NULL)
 }
 
 
-#' Kulczynski
-#' 
-#' Kulczynski beta diversity metric.
-#' 
-#' @inherit documentation
-#' @family beta_diversity
-#' 
-#' @return A `dist` object.
-#' 
-#' @section Calculation:
-#' 
-#' In the formulas below, `x` and `y` are two columns (samples) from `counts`. 
-#' `n` is the number of rows (OTUs) in `counts`.
-#' 
-#' \deqn{t = \displaystyle \sum_{i = 1}^{n} min(x_i,y_i)}
-#' \deqn{D = \displaystyle 1 - 0.5(\frac{t}{\sum_{i = 1}^{n} x_i} + \frac{t}{\sum_{i = 1}^{n} y_i})}
-#' 
-#' ```
-#'   x <- c(4, 0, 3, 2, 6)
-#'   y <- c(0, 8, 0, 0, 5)
-#'   t <- sum(pmin(x,y))
-#'   1 - (t/sum(x) + t/sum(y)) / 2  
-#'   #>  0.6410256
-#' ```
-#' 
-#' @references
-#' 
-#' Kulcynski S 1927.
-#' Die Pflanzenassoziationen der Pieninen.
-#' Bulletin International de l'Académie Polonaise des Sciences et des Lettres, Classe des Sciences Mathématiques et Naturelles, Série B: Sciences Naturelles.
-#' 
+
+#  Bhattacharyya
+#  -log(sum(sqrt(x * y)))
 #' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Kulczynski weighted distance matrix
-#'     kulczynski(ex_counts)
-#'     
-#'     # Kulczynski unweighted distance matrix
-#'     kulczynski(ex_counts, weighted = FALSE)
-#'     
-#'     # Only calculate distances for A vs all.
-#'     kulczynski(ex_counts, pairs = 1:3)
-#'     
-kulczynski <- function (
-    counts, 
-    weighted = TRUE, 
-    pairs    = NULL, 
-    cpus     = n_cpus() ) {
+#' @rdname bdiv_functions
+bhattacharyya <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
   
   validate_args()
-  result_dist <- init_result_dist(counts)
-  
-  .Call(
-    C_beta_div, 5L, 
-    counts, weighted, pairs, cpus, result_dist )
+  .Call(C_beta_div, BDIV_BHATTACHARYYA, counts, pairs, cpus, NULL)
 }
 
 
-#' Manhattan
-#' 
-#' Manhattan beta diversity metric.
-#' 
-#' @inherit documentation
-#' @family beta_diversity
-#' 
-#' @return A `dist` object.
-#' 
-#' @section Calculation:
-#' 
-#' In the formulas below, `x` and `y` are two columns (samples) from `counts`. 
-#' `n` is the number of rows (OTUs) in `counts`.
-#' 
-#' \deqn{D = \displaystyle \sum_{i = 1}^{n} |x_i - y_i|}
-#' 
-#' ```
-#'   x <- c(4, 0, 3, 2, 6)  
-#'   y <- c(0, 8, 0, 0, 5)  
-#'   sum(abs(x-y))
-#'   #>  18
-#' ```
-#' 
-#' @references
-#' 
-#' Paul EB 2006.
-#' Manhattan distance.
-#' Dictionary of Algorithms and Data Structures.
-#' <https://xlinux.nist.gov/dads/HTML/manhattanDistance.html>
-#' 
+
+# Bray-Curtis  
+# sum(abs(x-y)) / sum(x+y)
 #' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Manhattan weighted distance matrix
-#'     manhattan(ex_counts)
-#'     
-#'     # Manhattan unweighted distance matrix
-#'     manhattan(ex_counts, weighted = FALSE)
-#'     
-#'     # Only calculate distances for A vs all.
-#'     manhattan(ex_counts, pairs = 1:3)
-#'     
-manhattan <- function (
-    counts, 
-    weighted = TRUE, 
-    pairs    = NULL, 
-    cpus     = n_cpus() ) {
+#' @rdname bdiv_functions
+bray <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
   
   validate_args()
-  result_dist <- init_result_dist(counts)
-  
-  .Call(
-    C_beta_div, 6L, 
-    counts, weighted, pairs, cpus, result_dist )
+  .Call(C_beta_div, BDIV_BRAY, counts, pairs, cpus, NULL)
 }
 
 
-#' Unweighted UniFrac
-#' 
-#' Unweighted UniFrac beta diversity metric.
-#' 
-#' @inherit documentation
-#' @family beta_diversity
-#' 
-#' @return A `dist` object.
-#' 
-#' @section Calculation:
-#' 
-#' Given \eqn{n} branches with lengths \eqn{L} and a pair of samples' 
-#' abundances (\eqn{A} and \eqn{B}) on each of those branches:
-#' 
-#' \deqn{D = \displaystyle \frac{\sum_{i = 1}^{n} L_i(|A_i - B_i|)}{\sum_{i = 1}^{n} L_i(max(A_i,B_i))}}
-#' 
-#' Abundances in \eqn{A} and \eqn{B} are coded as `1` or `0` to indicate their 
-#' presence or absence, respectively, on each branch.
-#' 
-#' See <https://cmmr.github.io/ecodive/articles/unifrac.html> for details and 
-#' a worked example.
-#' 
-#' @references
-#' 
-#' Lozupone C, Knight R 2005.
-#' UniFrac: A new phylogenetic method for comparing microbial communities.
-#' Applied and Environmental Microbiology, 71(12).
-#' \doi{10.1128/AEM.71.12.8228-8235.2005}
-#' 
+#  Canberra
+#  sum(abs(x-y) / (x+y))
 #' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Unweighted UniFrac distance matrix
-#'     unweighted_unifrac(ex_counts, tree = ex_tree)
-#'     
-#'     # Only calculate distances for A vs all.
-#'     unweighted_unifrac(ex_counts, tree = ex_tree, pairs = 1:3)
-#'     
-unweighted_unifrac <- function (
-    counts, 
-    tree   = NULL, 
-    pairs  = NULL, 
-    cpus   = n_cpus() ) {
+#' @rdname bdiv_functions
+canberra <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
   
   validate_args()
-  alpha <- NA_real_
-  result_dist <- init_result_dist(counts)
-  
-  .Call(
-    C_unifrac, 1L, 
-    counts, tree, alpha, pairs, cpus, result_dist )
+  .Call(C_beta_div, BDIV_CANBERRA, counts, pairs, cpus, NULL)
 }
 
 
-#' Weighted UniFrac
-#' 
-#' Weighted UniFrac beta diversity metric.
-#' 
-#' @inherit documentation
-#' @family beta_diversity
-#' 
-#' @return A `dist` object.
-#' 
-#' @section Calculation:
-#' 
-#' Given \eqn{n} branches with lengths \eqn{L} and a pair of samples' 
-#' abundances (\eqn{A} and \eqn{B}) on each of those branches:
-#' 
-#' \deqn{D = \sum_{i = 1}^{n} L_i|\frac{A_i}{A_T} - \frac{B_i}{B_T}|}
-#' 
-#' See `vignette('unifrac')` for details and a worked example.
-#' 
-#' @references
-#' 
-#' Lozupone CA, Hamady M, Kelley ST, Knight R 2007.
-#' Quantitative and Qualitative \eqn{\beta} Diversity Measures Lead to Different Insights into Factors That Structure Microbial Communities. 
-#' Applied and Environmental Microbiology, 73(5).
-#' \doi{10.1128/AEM.01996-06}
-#' 
+#  Chebyshev
+#  max(abs(x-y))
 #' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Weighted UniFrac distance matrix
-#'     weighted_unifrac(ex_counts, tree = ex_tree)
-#'     
-#'     # Only calculate distances for A vs all.
-#'     weighted_unifrac(ex_counts, tree = ex_tree, pairs = 1:3)
-#'     
-weighted_unifrac <- function (
-    counts, 
-    tree   = NULL, 
-    pairs  = NULL, 
-    cpus   = n_cpus() ) {
+#' @rdname bdiv_functions
+chebyshev <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
   
   validate_args()
-  alpha <- NA_real_
-  result_dist <- init_result_dist(counts)
-  
-  .Call(
-    C_unifrac, 2L, 
-    counts, tree, alpha, pairs, cpus, result_dist )
+  .Call(C_beta_div, BDIV_CHEBYSHEV, counts, pairs, cpus, NULL)
 }
 
 
-#' Normalized UniFrac
-#' 
-#' Normalized UniFrac beta diversity metric.
-#' 
-#' @inherit documentation
-#' @family beta_diversity
-#' 
-#' @return A `dist` object.
-#' 
-#' @section Calculation:
-#' 
-#' Given \eqn{n} branches with lengths \eqn{L} and a pair of samples' 
-#' abundances (\eqn{A} and \eqn{B}) on each of those branches:
-#' 
-#' \deqn{D = \displaystyle \frac{\sum_{i = 1}^{n} L_i|\frac{A_i}{A_T} - \frac{B_i}{B_T}|}{\sum_{i = 1}^{n} L_i(\frac{A_i}{A_T} + \frac{B_i}{B_T})}}
-#' 
-#' See `vignette('unifrac')` for details and a worked example.
-#' 
-#' @references
-#' 
-#' Lozupone CA, Hamady M, Kelley ST, Knight R 2007.
-#' Quantitative and Qualitative \eqn{\beta} Diversity Measures Lead to Different Insights into Factors That Structure Microbial Communities. 
-#' Applied and Environmental Microbiology, 73(5).
-#' \doi{10.1128/AEM.01996-06}
-#' 
+#  Chord
+#  sqrt(sum(((x / sqrt(sum(x ^ 2))) - (y / sqrt(sum(y ^ 2))))^2))
 #' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # UniFrac weighted distance matrix
-#'     weighted_normalized_unifrac(ex_counts, tree = ex_tree)
-#'     
-#'     # Only calculate distances for A vs all.
-#'     weighted_normalized_unifrac(ex_counts, tree = ex_tree, pairs = 1:3)
-#'     
-weighted_normalized_unifrac <- function (
-    counts, 
-    tree   = NULL, 
-    pairs  = NULL, 
-    cpus   = n_cpus() ) {
+#' @rdname bdiv_functions
+chord <- function (counts, pairs = NULL, cpus = n_cpus()) {
   
   validate_args()
-  alpha <- NA_real_
-  result_dist <- init_result_dist(counts)
   
-  .Call(
-    C_unifrac, 3L, 
-    counts, tree, alpha, pairs, cpus, result_dist )
+  counts <- transform_chord(counts)
+  
+  .Call(C_beta_div, BDIV_EUCLIDEAN, counts, pairs, cpus, NULL)
+}
+
+
+#  Clark
+#  sqrt(sum((abs(x - y) / (x + y)) ^ 2))  
+#' @export
+#' @rdname bdiv_functions
+clark <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_CLARK, counts, pairs, cpus, NULL)
+}
+
+
+#  Divergence
+#  2 * sum((x - y)^2 / (x + y)^2)
+#' @export
+#' @rdname bdiv_functions
+divergence <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_DIVERGENCE, counts, pairs, cpus, NULL)
+}
+
+
+#  Euclidean
+#  sqrt(sum((x-y)^2))
+#' @export
+#' @rdname bdiv_functions
+euclidean <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_EUCLIDEAN, counts, pairs, cpus, NULL)
+}
+
+
+#  Gower
+#  r <- abs(x - y)
+#  n <- length(x) # <-- not `sum(x|y)`
+#  sum(abs(x-y) / r) / n
+#' @export
+#' @rdname bdiv_functions
+gower <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  
+  range_vec <- apply(counts, 2L, function (x) diff(range(x)))
+  
+  .Call(C_beta_div, BDIV_GOWER, counts, pairs, cpus, range_vec)
+}
+
+
+#  Hellinger
+#  sqrt(sum((sqrt(x) - sqrt(y)) ^ 2))
+#' @export
+#' @rdname bdiv_functions
+hellinger <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  
+  sqc <- .Call(C_beta_div, BDIV_SQUARED_CHORD, counts, pairs, cpus, NULL)
+  
+  sqrt(sqc)
+}
+
+
+#  Horn-Morisita
+#  z <- sum(x^2) / sum(x)^2 + sum(y^2) / sum(y)^2
+#  1 - ((2 * sum(x * y)) / (z * sum(x) * sum(y)))
+#' @export
+#' @rdname bdiv_functions
+horn <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_HORN, counts, pairs, cpus, NULL)
+}
+
+
+#  Jensen-Shannon distance
+#  sqrt(sum(x * log(2 * x / (x+y)), y * log(2 * y / (x+y))) / 2)  
+#' @export
+#' @rdname bdiv_functions
+jensen <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  
+  jsd <- .Call(C_beta_div, BDIV_JSD, counts, pairs, cpus, NULL)
+  
+  sqrt(jsd)
+}
+
+
+#  Jensen-Shannon Divergence (JSD)
+#  sum(x * log(2 * x / (x+y)), y * log(2 * y / (x+y))) / 2  
+#' @export
+#' @rdname bdiv_functions
+jsd <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_JSD, counts, pairs, cpus, NULL)
+}
+
+
+#  Lorentzian
+#  sum(log(1 + abs(x - y)))
+#' @export
+#' @rdname bdiv_functions
+lorentzian <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_LORENTZIAN, counts, pairs, cpus, NULL)
+}
+
+
+#  Manhattan
+#  sum(abs(x-y))
+#' @export
+#' @rdname bdiv_functions
+manhattan <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_MANHATTAN, counts, pairs, cpus, NULL)
+}
+
+
+#  Matusita
+#  sqrt(sum((sqrt(x) - sqrt(y)) ^ 2))
+#' @export
+#' @rdname bdiv_functions
+matusita <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  
+  sqc <- .Call(C_beta_div, BDIV_SQUARED_CHORD, counts, pairs, cpus, NULL)
+  
+  sqrt(sqc)
+}
+
+
+#  Minkowski
+#  p <- 1.5
+#  sum(abs(x - y)^p) ^ (1/p)
+#' @export
+#' @rdname bdiv_functions
+minkowski <- function (counts, rescale = TRUE, power = 1.5, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_MINKOWSKI, counts, pairs, cpus, power)
+}
+
+
+#  Morisita
+#  simp_x <- sum(x * (x - 1)) / (sum(x) * (sum(x) - 1))
+#  simp_y <- sum(y * (y - 1)) / (sum(y) * (sum(y) - 1))
+#  1 - ((2 * sum(x * y)) / ((simp_x + simp_y) * sum(x) * sum(y))) 
+#' @export
+#' @rdname bdiv_functions
+morisita <- function (counts, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  assert_integer_counts()
+  
+  .Call(C_beta_div, BDIV_MORISITA, counts, pairs, cpus, NULL)
+}
+
+
+#  Motyka
+#  sum(pmax(x, y)) / sum(x, y)
+#' @export
+#' @rdname bdiv_functions
+motyka <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_MOTYKA, counts, pairs, cpus, NULL)
+}
+
+
+#  Probabilistic Symmetric Chi-Squared  
+#  2 * sum((x - y)^2 / (x + y))
+#' @export
+#' @rdname bdiv_functions
+psym_chisq <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  
+  scs <- .Call(C_beta_div, BDIV_SQUARED_CHISQ, counts, pairs, cpus, NULL)
+  
+  2 * scs
+}
+
+
+#  Soergel
+#  sum(abs(x - y)) / sum(pmax(x, y))
+#' @export
+#' @rdname bdiv_functions
+soergel <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_SOERGEL, counts, pairs, cpus, NULL)
+}
+
+
+#  Squared Chi-Squared
+#  sum((x - y)^2 / (x + y))
+#' @export
+#' @rdname bdiv_functions
+squared_chisq <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_SQUARED_CHISQ, counts, pairs, cpus, NULL)
+}
+
+
+#  Squared Chord
+#  sum((sqrt(x) - sqrt(y)) ^ 2)
+#' @export
+#' @rdname bdiv_functions
+squared_chord <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_SQUARED_CHORD, counts, pairs, cpus, NULL)
+}
+
+
+#  Squared Euclidean
+#  sum((x-y)^2)
+#' @export
+#' @rdname bdiv_functions
+squared_euclidean <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  
+  euc <- .Call(C_beta_div, BDIV_EUCLIDEAN, counts, pairs, cpus, NULL)
+  
+  euc ^ 2
+}
+
+
+#  Topsoe
+#  sum(x * log(2 * x / (x+y)), y * log(2 * y / (x+y)))
+#' @export
+#' @rdname bdiv_functions
+topsoe <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  
+  jsd <- .Call(C_beta_div, BDIV_JSD, counts, pairs, cpus, NULL)
+  
+  2 * jsd
+}
+
+
+#  Wave Hedges
+#  sum(abs(x - y) / pmax(x, y))
+#' @export
+#' @rdname bdiv_functions
+wave_hedges <- function (counts, rescale = TRUE, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_WAVE_HEDGES, counts, pairs, cpus, NULL)
+}
+
+
+
+
+# Presence/Absence -----------
+
+
+#  Hamming
+#  sum(xor(x, y))
+#' @export
+#' @rdname bdiv_functions
+hamming <- function (counts, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_HAMMING, counts, pairs, cpus, NULL)
+}
+
+
+#  Jaccard
+#  1 - sum(x & y) / sum(x | y)
+#' @export
+#' @rdname bdiv_functions
+jaccard <- function (counts, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_JACCARD, counts, pairs, cpus, NULL)
+}
+
+
+#  Otsuka-Ochiai
+#  1 - sum(x & y) / sqrt(sum(x>0) * sum(y>0)) 
+#' @export
+#' @rdname bdiv_functions
+ochiai <- function (counts, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_OCHIAI, counts, pairs, cpus, NULL)
+}
+
+
+#  Dice-Sorensen
+#  2 * sum(x & y) / sum(x>0, y>0)
+#' @export
+#' @rdname bdiv_functions
+sorensen <- function (counts, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_beta_div, BDIV_SORENSEN, counts, pairs, cpus, NULL)
+}
+
+
+
+
+# UniFrac Family -----------
+
+#' @export
+#' @rdname bdiv_functions
+unweighted_unifrac <- function (counts, tree = NULL, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_unifrac, U_UNIFRAC, counts, tree, pairs, cpus, NULL)
+}
+
+
+#' @export
+#' @rdname bdiv_functions
+weighted_unifrac <- function (counts, tree = NULL, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_unifrac, W_UNIFRAC, counts, tree, pairs, cpus, NULL)
+}
+
+
+#' @export
+#' @rdname bdiv_functions
+normalized_unifrac <- function (counts, tree = NULL, pairs = NULL, cpus = n_cpus()) {
+  
+  validate_args()
+  .Call(C_unifrac, N_UNIFRAC, counts, tree, pairs, cpus, NULL)
 } 
 
 
-#' Generalized UniFrac
-#' 
-#' Generalized UniFrac beta diversity metric.
-#' 
-#' @inherit documentation
-#' @family beta_diversity
-#' 
-#' @return A `dist` object.
-#' 
-#' @section Calculation:
-#' 
-#' Given \eqn{n} branches with lengths \eqn{L}, a pair of samples' 
-#' abundances (\eqn{A} and \eqn{B}) on each of those branches, and 
-#' abundance weighting \eqn{0 \le \alpha \le 1}:
-#' 
-#' \deqn{D = \displaystyle \frac{\sum_{i = 1}^{n} L_i(\frac{A_i}{A_T} + \frac{B_i}{B_T})^{\alpha}|\displaystyle \frac{\frac{A_i}{A_T} - \frac{B_i}{B_T}}{\frac{A_i}{A_T} + \frac{B_i}{B_T}} |}{\sum_{i = 1}^{n} L_i(\frac{A_i}{A_T} + \frac{B_i}{B_T})^{\alpha}}}
-#' 
-#' See `vignette('unifrac')` for details and a worked example.
-#' 
-#' @references
-#' 
-#' Chen J, Bittinger K, Charlson ES, Hoffmann C, Lewis J, Wu GD, Collman RG, Bushman FD, Li H 2012.
-#' Associating microbiome composition with environmental covariates using generalized UniFrac distances. 
-#' Bioinformatics, 28(16).
-#' \doi{10.1093/bioinformatics/bts342}
-#' 
 #' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Generalized UniFrac distance matrix
-#'     generalized_unifrac(ex_counts, tree = ex_tree)
-#'     
-#'     # Only calculate distances for A vs all.
-#'     generalized_unifrac(ex_counts, tree = ex_tree, pairs = 1:3)
-#'     
-generalized_unifrac <- function (
-    counts, 
-    tree   = NULL, 
-    alpha  = 0.5, 
-    pairs  = NULL, 
-    cpus   = n_cpus() ) {
+#' @rdname bdiv_functions
+generalized_unifrac <- function (counts, tree = NULL, alpha = 0.5, pairs = NULL, cpus = n_cpus()) {
   
   validate_args()
-  result_dist <- init_result_dist(counts)
-  
-  .Call(
-    C_unifrac, 4L, 
-    counts, tree, alpha, pairs, cpus, result_dist )
+  .Call(C_unifrac, G_UNIFRAC, counts, tree, pairs, cpus, alpha)
 }
 
 
-#' Variance Adjusted UniFrac
-#' 
-#' Variance Adjusted UniFrac beta diversity metric.
-#' 
-#' @inherit documentation
-#' @family beta_diversity
-#' 
-#' @return A `dist` object.
-#' 
-#' @section Calculation:
-#' 
-#' Given \eqn{n} branches with lengths \eqn{L} and a pair of samples' 
-#' abundances (\eqn{A} and \eqn{B}) on each of those branches:
-#' 
-#' \deqn{D = \displaystyle \frac{\sum_{i = 1}^{n} L_i\displaystyle \frac{|\frac{A_i}{A_T} - \frac{B_i}{B_T}|}{\sqrt{(A_i + B_i)(A_T + B_T - A_i - B_i)}} }{\sum_{i = 1}^{n} L_i\displaystyle \frac{\frac{A_i}{A_T} + \frac{B_i}{B_T}}{\sqrt{(A_i + B_i)(A_T + B_T - A_i - B_i)}} }}
-#' 
-#' See `vignette('unifrac')` for details and a worked example.
-#' 
-#' @references
-#' 
-#' Chang Q, Luan Y, Sun F 2011.
-#' Variance adjusted weighted UniFrac: a powerful beta diversity measure for comparing communities based on phylogeny. 
-#' BMC Bioinformatics, 12.
-#' \doi{10.1186/1471-2105-12-118}
-#' 
 #' @export
-#' @examples
-#'     # Example counts matrix
-#'     ex_counts
-#'     
-#'     # Variance Adjusted UniFrac distance matrix
-#'     variance_adjusted_unifrac(ex_counts, tree = ex_tree)
-#'     
-#'     # Only calculate distances for A vs all.
-#'     variance_adjusted_unifrac(ex_counts, tree = ex_tree, pairs = 1:3)
-#'     
-variance_adjusted_unifrac <- function (
-    counts, 
-    tree   = NULL, 
-    pairs  = NULL, 
-    cpus   = n_cpus() ) {
+#' @rdname bdiv_functions
+variance_adjusted_unifrac <- function (counts, tree = NULL, pairs = NULL, cpus = n_cpus()) {
   
   validate_args()
-  alpha <- NA_real_
-  result_dist <- init_result_dist(counts)
-  
-  .Call(
-    C_unifrac, 5L, 
-    counts, tree, alpha, pairs, cpus, result_dist )
+  .Call(C_unifrac, V_UNIFRAC, counts, tree, pairs, cpus, NULL)
 }
-
-
-
-init_result_dist <- function (counts) {
-  n <- ncol(counts)
-  structure(
-    rep(NA_real_, n * (n - 1) / 2),
-    class  = 'dist',
-    Labels = colnames(counts),
-    Size   = n,
-    Diag   = FALSE,
-    Upper  = FALSE )
-}
-
