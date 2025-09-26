@@ -28,9 +28,6 @@ ADIV_SQUARES     <- 13L
 #'   'margalef', 'mcintosh', 'menhinick', 'observed', 'shannon', 'simpson',
 #'   'squares')`. Case-insensitive and partial name matching is supported.
 #'   Programmatic access via `list_metrics('alpha')`.
-#'   
-#' @param ...  Additional options to pass through to the called function. I.e.
-#'   `cpus` or `tree`.
 #' 
 #' @return A numeric vector.
 #' 
@@ -46,15 +43,26 @@ ADIV_SQUARES     <- 13L
 #' proportional data. Using proportional data with a metric that requires
 #' integer counts will return an error message.
 #' 
-#' | Requires Integer Counts Only | Can Use Proportional Data     |
-#' | :--------------------------  | :---------------------------- |
-#' | Chao1                        | Observed Features             |
-#' | ACE                          | Shannon Index                 |
-#' | Squares Richness Estimator   | Gini-Simpson Index            |
-#' | Margalef's Index             | Inverse Simpson Index         |
-#' | Menhinick's Index            | Berger-Parker Index           |
-#' | Fisher's Alpha               | McIntosh Index                |
-#' | Brillouin Index              | Faith's PD (presence/absence) |
+#' ### Requires Integer Counts Only
+#' 
+#' * Chao1  
+#' * ACE
+#' * Squares Richness Estimator
+#' * Margalef's Index
+#' * Menhinick's Index
+#' * Fisher's Alpha
+#' * Brillouin Index
+#' 
+#' ### Can Use Proportional Data
+#' 
+#' * Observed Features
+#' * Shannon Index
+#' * Gini-Simpson Index
+#' * Inverse Simpson Index
+#' * Berger-Parker Index
+#' * McIntosh Index
+#' * Faith's PD
+#' 
 #' 
 #' 
 #' @export
@@ -72,8 +80,19 @@ ADIV_SQUARES     <- 13L
 #'     alpha_div(ex_counts, 'faith', tree = ex_tree)
 #'     
 #'     
-alpha_div <- function (counts, metric, ...) {
-  match_metric(metric, div = 'alpha')$func(counts = counts, ...)
+alpha_div <- function (
+    counts, 
+    metric, 
+    norm = 'percent', 
+    cutoff  = 10, 
+    digits  = 3L, 
+    tree    = NULL, 
+    cpus    = n_cpus() ) {
+  
+  metric <- match_metric(metric, div = 'alpha')
+  args   <- mget(metric$params, environment())
+  
+  do.call(metric$func, args)
 }
 
 
@@ -183,7 +202,7 @@ ace <- function (counts, cutoff = 10, cpus = n_cpus()) {
 #  max(x / sum(x))
 #' @export
 #' @rdname adiv_functions
-berger <- function (counts, rescale = TRUE, cpus = n_cpus()) {
+berger <- function (counts, norm = 'percent', cpus = n_cpus()) {
   
   validate_args()
   .Call(C_alpha_div, ADIV_BERGER, counts, cpus, NULL)
@@ -244,7 +263,7 @@ fisher <- function (counts, digits = 3L, cpus = n_cpus()) {
 #  1 / sum(p ** 2)
 #' @export
 #' @rdname adiv_functions
-inv_simpson <- function (counts, rescale = TRUE, cpus = n_cpus()) {
+inv_simpson <- function (counts, norm = 'percent', cpus = n_cpus()) {
   
   validate_args()
   .Call(C_alpha_div, ADIV_INV_SIMPSON, counts, cpus, NULL)
@@ -306,7 +325,7 @@ observed <- function (counts, cpus = n_cpus()) {
 #  -sum(p * log(p))
 #' @export
 #' @rdname adiv_functions
-shannon <- function (counts, rescale = TRUE, cpus = n_cpus()) {
+shannon <- function (counts, norm = 'percent', cpus = n_cpus()) {
   
   validate_args()
   .Call(C_alpha_div, ADIV_SHANNON, counts, cpus, NULL)
@@ -318,7 +337,7 @@ shannon <- function (counts, rescale = TRUE, cpus = n_cpus()) {
 #  1 - sum(p ** 2)
 #' @export
 #' @rdname adiv_functions
-simpson <- function (counts, rescale = TRUE, cpus = n_cpus()) {
+simpson <- function (counts, norm = 'percent', cpus = n_cpus()) {
   
   validate_args()
   .Call(C_alpha_div, ADIV_SIMPSON, counts, cpus, NULL)

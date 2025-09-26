@@ -36,12 +36,28 @@ test_that("beta diversity", {
   
   
   
+  # Pairs == integer(0) ====
+  
+  expect_equal(
+    object   = as.vector(bray(counts, pairs = integer(0))), 
+    expected = as.numeric(c(NA, NA, NA, NA, NA, NA)) )
+  
+  expect_equal(
+    object   = as.vector(unweighted_unifrac(counts, tree, pairs = integer(0))), 
+    expected = as.numeric(c(NA, NA, NA, NA, NA, NA)) )
+  
+  
+  
   # Aitchison ====
   
   expect_equal( # vegan(counts + 1, 'aitchison')
     object   = as.vector(aitchison(counts, pseudocount = 1)), 
     expected = c(2.42489292341729,  2.48372587230057, 3.26493363948397, 
                  0.250928909965064, 1.6566104027154,  1.88303098843395 ))
+  
+  expect_equal( # clr euclidean == aitchison
+    object   = as.vector(euclidean(counts, norm = 'clr')), 
+    expected = as.vector(aitchison(counts)) )
   
   
   
@@ -60,6 +76,10 @@ test_that("beta diversity", {
     object   = as.vector(bray(counts)), 
     expected = c(0.444444444444444,  0.428571428571429, 0.666666666666667, 
                  0.0555555555555556, 0.277777777777778, 0.333333333333333 ))
+  
+  expect_equal( # binary bray == sorensen
+    object   = as.vector(bray(counts, norm = 'binary')), 
+    expected = as.vector(sorensen(counts)) )
   
   
   
@@ -274,6 +294,10 @@ test_that("beta diversity", {
     object   = as.vector(soergel(counts)), 
     expected = c(0.615384615384615, 0.6,               0.8, 
                  0.105263157894737, 0.434782608695652, 0.5 ))
+  
+  expect_equal( # binary soergel == jaccard
+    object   = as.vector(soergel(counts, norm = 'binary')), 
+    expected = as.vector(jaccard(counts)) )
   
   
   

@@ -1,9 +1,10 @@
 # ecodive <img src="man/figures/logo.png" align="right" width="174" height="200" alt="ecodive logo" />
 
 <!-- badges: start -->
-[![cran](https://www.r-pkg.org/badges/version/ecodive)](https://CRAN.R-project.org/package=ecodive)
-[![conda](https://anaconda.org/conda-forge/r-ecodive/badges/version.svg)](https://anaconda.org/conda-forge/r-ecodive)
-[![covr](https://codecov.io/gh/cmmr/ecodive/graph/badge.svg)](https://app.codecov.io/gh/cmmr/ecodive)
+[![cran](https://img.shields.io/cran/v/ecodive?logo=r&label=CRAN)](https://CRAN.R-project.org/package=ecodive)
+[![conda](https://img.shields.io/conda/v/conda-forge/r-ecodive?logo=anaconda&label=conda)](https://anaconda.org/conda-forge/r-ecodive)
+[![covr](https://img.shields.io/codecov/c/gh/cmmr/ecodive?logo=codecov)](https://app.codecov.io/gh/cmmr/ecodive)
+[![joss](https://joss.theoj.org/papers/a93132f1a403729a2973a8fcc2be3685/status.svg)](https://joss.theoj.org/papers/a93132f1a403729a2973a8fcc2be3685)
 <!-- badges: end -->
 
 `ecodive` is an R package for calculating ecological diversity metrics in a
@@ -182,3 +183,9 @@ New functions must leverage C and pthreads to minimize memory and CPU time.
 Please note that the ecodive project is released with a [Contributor Code of
 Conduct](https://cmmr.github.io/ecodive/CODE_OF_CONDUCT.html). By contributing
 to this project, you agree to abide by its terms.
+
+
+
+## License
+
+[MIT License](https://opensource.org/license/mit) &copy; 2025 ecodive authors

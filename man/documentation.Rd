@@ -34,8 +34,14 @@ communities (\eqn{p}). Default: \code{1.5}}
 taking \code{log(0)} for unobserved features. The default, \code{NULL}, selects
 the smallest non-zero value in \code{counts}.}
 
-\item{rescale}{Normalize each sample's counts so they sum to \code{1}.
-Default: \code{TRUE}}
+\item{norm}{Normalize the incoming counts. Options are:
+\describe{
+\item{\code{norm = "percent"} - }{ Relative abundance (sample abundances sum to 1). }
+\item{\code{norm = "binary"}  - }{ Unweighted presence/absence (each count is either 0 or 1). }
+\item{\code{norm = "clr"}     - }{ Centered log ratio. }
+\item{\code{norm = "none"}    - }{ No transformation. }
+}
+Default: \code{'percent'}, which is the expected input for these formulas.}
 
 \item{tree}{A \code{phylo}-class object representing the phylogenetic tree for
 the OTUs in \code{counts}. The OTU identifiers given by \code{colnames(counts)}

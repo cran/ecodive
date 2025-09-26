@@ -1,3 +1,19 @@
+
+# ecodive 2.1.0
+
+## Breaking Changes
+
+* `rescale` parameter is superseded by `norm` parameter.
+
+
+## Fixes
+
+* `alpha_div()` and `beta_div()` will only forward applicable parameters.
+* No longer crashes when `pairs = integer(0)`.
+* `pseudocount = NULL` correctly selects smallest non-zero count.
+
+
+
 # ecodive 2.0.0
 
 ## Breaking Changes

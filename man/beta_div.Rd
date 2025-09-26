@@ -4,7 +4,17 @@
 \alias{beta_div}
 \title{Beta Diversity Wrapper Function}
 \usage{
-beta_div(counts, metric, ...)
+beta_div(
+  counts,
+  metric,
+  norm = "percent",
+  power = 1.5,
+  pseudocount = NULL,
+  alpha = 0.5,
+  tree = NULL,
+  pairs = NULL,
+  cpus = n_cpus()
+)
 }
 \arguments{
 \item{counts}{A numeric matrix of count data where each column is a
@@ -16,8 +26,38 @@ feature, and each row is a sample. Any object coercible with
 matching is supported (see below). Programmatic access via
 \code{list_metrics('beta')}.}
 
-\item{...}{Additional options to pass through to the called function. I.e.
-\code{tree}, \code{pairs}, \code{alpha}, or \code{cpus}.}
+\item{norm}{Normalize the incoming counts. Options are:
+\describe{
+\item{\code{norm = "percent"} - }{ Relative abundance (sample abundances sum to 1). }
+\item{\code{norm = "binary"}  - }{ Unweighted presence/absence (each count is either 0 or 1). }
+\item{\code{norm = "clr"}     - }{ Centered log ratio. }
+\item{\code{norm = "none"}    - }{ No transformation. }
+}
+Default: \code{'percent'}, which is the expected input for these formulas.}
+
+\item{power}{Scaling factor for the magnitude of differences between
+communities (\eqn{p}). Default: \code{1.5}}
+
+\item{pseudocount}{The value to add to all counts in \code{counts} to prevent
+taking \code{log(0)} for unobserved features. The default, \code{NULL}, selects
+the smallest non-zero value in \code{counts}.}
+
+\item{alpha}{How much weight to give to relative abundances; a value
+between 0 and 1, inclusive. Setting \code{alpha=1} is equivalent to
+\code{normalized_unifrac()}.}
+
+\item{tree}{A \code{phylo}-class object representing the phylogenetic tree for
+the OTUs in \code{counts}. The OTU identifiers given by \code{colnames(counts)}
+must be present in \code{tree}. Can be omitted if a tree is embedded with
+the \code{counts} object or as \code{attr(counts, 'tree')}.}
+
+\item{pairs}{Which combinations of samples should distances be
+calculated for? The default value (\code{NULL}) calculates all-vs-all.
+Provide a numeric or logical vector specifying positions in the
+distance matrix to calculate. See examples.}
+
+\item{cpus}{How many parallel processing threads should be used. The
+default, \code{n_cpus()}, will use all logical CPU cores.}
 }
 \value{
 A numeric vector.
