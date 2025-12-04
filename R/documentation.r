@@ -14,7 +14,9 @@
 #' @param counts   A numeric matrix of count data where each column is a 
 #'        feature, and each row is a sample. Any object coercible with 
 #'        `as.matrix()` can be given here, as well as `phyloseq`, `rbiom`, 
-#'        `SummarizedExperiment`, and `TreeSummarizedExperiment` objects. 
+#'        `SummarizedExperiment`, and `TreeSummarizedExperiment` objects. For
+#'        optimal performance with very large datasets, see the guide in
+#'        `vignette('performance')`.
 #' 
 #' @param cpus   How many parallel processing threads should be used. The
 #'        default, `n_cpus()`, will use all logical CPU cores.
@@ -45,6 +47,11 @@
 #'            \item{`norm = "none"`    - }{ No transformation. }
 #'        }
 #'        Default: `'percent'`, which is the expected input for these formulas.
+#' 
+#' @param margin   If your samples are in the matrix's rows, set to `1L`. If 
+#'        your samples are in columns, set to `2L`. Ignored when `counts` is a 
+#'        `phyloseq`, `rbiom`, `SummarizedExperiment`, or 
+#'        `TreeSummarizedExperiment` object. Default: `1L`
 #' 
 #' @param tree   A `phylo`-class object representing the phylogenetic tree for 
 #'        the OTUs in `counts`. The OTU identifiers given by `colnames(counts)` 

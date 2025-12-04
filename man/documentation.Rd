@@ -11,7 +11,9 @@ between 0 and 1, inclusive. Setting \code{alpha=1} is equivalent to
 \item{counts}{A numeric matrix of count data where each column is a
 feature, and each row is a sample. Any object coercible with
 \code{as.matrix()} can be given here, as well as \code{phyloseq}, \code{rbiom},
-\code{SummarizedExperiment}, and \code{TreeSummarizedExperiment} objects.}
+\code{SummarizedExperiment}, and \code{TreeSummarizedExperiment} objects. For
+optimal performance with very large datasets, see the guide in
+\code{vignette('performance')}.}
 
 \item{cpus}{How many parallel processing threads should be used. The
 default, \code{n_cpus()}, will use all logical CPU cores.}
@@ -42,6 +44,11 @@ the smallest non-zero value in \code{counts}.}
 \item{\code{norm = "none"}    - }{ No transformation. }
 }
 Default: \code{'percent'}, which is the expected input for these formulas.}
+
+\item{margin}{If your samples are in the matrix's rows, set to \code{1L}. If
+your samples are in columns, set to \code{2L}. Ignored when \code{counts} is a
+\code{phyloseq}, \code{rbiom}, \code{SummarizedExperiment}, or
+\code{TreeSummarizedExperiment} object. Default: \code{1L}}
 
 \item{tree}{A \code{phylo}-class object representing the phylogenetic tree for
 the OTUs in \code{counts}. The OTU identifiers given by \code{colnames(counts)}

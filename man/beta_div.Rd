@@ -13,6 +13,7 @@ beta_div(
   alpha = 0.5,
   tree = NULL,
   pairs = NULL,
+  margin = 1L,
   cpus = n_cpus()
 )
 }
@@ -20,7 +21,9 @@ beta_div(
 \item{counts}{A numeric matrix of count data where each column is a
 feature, and each row is a sample. Any object coercible with
 \code{as.matrix()} can be given here, as well as \code{phyloseq}, \code{rbiom},
-\code{SummarizedExperiment}, and \code{TreeSummarizedExperiment} objects.}
+\code{SummarizedExperiment}, and \code{TreeSummarizedExperiment} objects. For
+optimal performance with very large datasets, see the guide in
+\code{vignette('performance')}.}
 
 \item{metric}{The name of a beta diversity metric. One of \code{c('aitchison', 'bhattacharyya', 'bray', 'canberra', 'chebyshev', 'chord', 'clark', 'divergence', 'euclidean', 'generalized_unifrac', 'gower', 'hamming', 'hellinger', 'horn', 'jaccard', 'jensen', 'jsd', 'lorentzian', 'manhattan', 'matusita', 'minkowski', 'morisita', 'motyka', 'normalized_unifrac', 'ochiai', 'psym_chisq', 'soergel', 'sorensen', 'squared_chisq', 'squared_chord', 'squared_euclidean', 'topsoe', 'unweighted_unifrac', 'variance_adjusted_unifrac', 'wave_hedges', 'weighted_unifrac')}. Flexible
 matching is supported (see below). Programmatic access via
@@ -55,6 +58,11 @@ the \code{counts} object or as \code{attr(counts, 'tree')}.}
 calculated for? The default value (\code{NULL}) calculates all-vs-all.
 Provide a numeric or logical vector specifying positions in the
 distance matrix to calculate. See examples.}
+
+\item{margin}{If your samples are in the matrix's rows, set to \code{1L}. If
+your samples are in columns, set to \code{2L}. Ignored when \code{counts} is a
+\code{phyloseq}, \code{rbiom}, \code{SummarizedExperiment}, or
+\code{TreeSummarizedExperiment} object. Default: \code{1L}}
 
 \item{cpus}{How many parallel processing threads should be used. The
 default, \code{n_cpus()}, will use all logical CPU cores.}
