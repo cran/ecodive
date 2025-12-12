@@ -14,28 +14,16 @@
 
 <title>Selecting a Beta Diversity Metric</title>
 
-<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
-// be compatible with the behavior of Pandoc < 2.8).
-document.addEventListener('DOMContentLoaded', function(e) {
-  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
-  var i, h, a;
-  for (i = 0; i < hs.length; i++) {
-    h = hs[i];
-    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
-    a = h.attributes;
-    while (a.length > 0) h.removeAttribute(a[0].name);
-  }
-});
-</script>
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
 
 <style type="text/css">
-code{white-space: pre-wrap;}
-span.smallcaps{font-variant: small-caps;}
-span.underline{text-decoration: underline;}
-div.column{display: inline-block; vertical-align: top; width: 50%;}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-</style>
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
 
@@ -43,187 +31,7 @@ ul.task-list{list-style: none;}
 
 
 
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
-table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
-}
-blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
-}
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
-}
-dl {
-margin-left: 0;
-}
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
-}
-dl dt {
-font-weight: bold;
-}
-ul {
-margin-top: 0;
-}
-ul li {
-list-style: circle outside;
-}
-ul ul {
-margin-bottom: 0;
-}
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
-}
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
-
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
-</style>
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
 
 
 
@@ -240,93 +48,49 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <div id="a-practical-guide-to-metric-selection-aligning-method-with-research-question" class="section level2">
-<h2>A Practical Guide to Metric Selection:<br>Aligning Method with
-Research Question</h2>
-<p>The theoretical and mathematical properties of the various beta
-diversity metrics provide the foundation for making an informed choice.
-However, the ultimate decision must be driven by the specific research
-question and the nature of the dataset. This vignette provides a
-practical framework, including a decision tree and illustrative case
-studies, to guide researchers from their scientific question to an
-appropriate metric.</p>
+<h2>A Practical Guide to Metric Selection:<br>Aligning Method with Research Question</h2>
+<p>The theoretical and mathematical properties of the various beta diversity metrics provide the foundation for making an informed choice. However, the ultimate decision must be driven by the specific research question and the nature of the dataset. This vignette provides a practical framework, including a decision tree and illustrative case studies, to guide researchers from their scientific question to an appropriate metric.</p>
 <div id="a-decision-tree-for-metric-selection" class="section level3">
 <h3>A Decision Tree for Metric Selection</h3>
-<p>This decision tree presents a series of questions to help a
-researcher systematically narrow the field of 37 metrics to a small,
-relevant subset.</p>
+<p>This decision tree presents a series of questions to help a researcher systematically narrow the field of 37 metrics to a small, relevant subset.</p>
 <div id="do-you-have-a-reliable-phylogenetic-tree-relating-your-taxa-e.g.-asvsotus" class="section level4">
-<h4>1. Do you have a reliable phylogenetic tree relating your taxa
-(e.g., ASVs/OTUs)?</h4>
+<h4>1. Do you have a reliable phylogenetic tree relating your taxa (e.g., ASVs/OTUs)?</h4>
 <ul>
-<li><p><strong>YES:</strong> Your analysis can and likely should
-leverage phylogenetic information.</p>
+<li><p><strong>YES:</strong> Your analysis can and likely should leverage phylogenetic information.</p>
 <ul>
-<li><p>Are you primarily interested in the presence/absence of entire
-evolutionary lineages (e.g., detecting the invasion of a novel phylum)?
--&gt; Start with <u>Unweighted UniFrac</u>.</p></li>
-<li><p>Are you primarily interested in shifts in the abundance of major,
-well-established lineages (e.g., the Firmicutes/Bacteroidetes ratio)?
--&gt; Start with <u>Weighted UniFrac</u>.</p></li>
-<li><p>Are you interested in a robust analysis that captures changes
-across rare, moderate, and abundant lineages, or are you unsure? -&gt;
-Use <u>Generalized UniFrac</u> (with α=0.5) as a powerful and balanced
-primary choice. Consider using <u>Variance-Adjusted Weighted UniFrac</u>
-for increased statistical power if you have uneven sample
-sizes.</p></li>
+<li><p>Are you primarily interested in the presence/absence of entire evolutionary lineages (e.g., detecting the invasion of a novel phylum)? -&gt; Start with <u>Unweighted UniFrac</u>.</p></li>
+<li><p>Are you primarily interested in shifts in the abundance of major, well-established lineages (e.g., the Firmicutes/Bacteroidetes ratio)? -&gt; Start with <u>Weighted UniFrac</u>.</p></li>
+<li><p>Are you interested in a robust analysis that captures changes across rare, moderate, and abundant lineages, or are you unsure? -&gt; Use <u>Generalized UniFrac</u> (with α=0.5) as a powerful and balanced primary choice. Consider using <u>Variance-Adjusted Weighted UniFrac</u> for increased statistical power if you have uneven sample sizes.</p></li>
 </ul></li>
-<li><p><strong>NO:</strong> You must use a Non-Phylogenetic Metric.
-Proceed to Question 2.</p></li>
+<li><p><strong>NO:</strong> You must use a Non-Phylogenetic Metric. Proceed to Question 2.</p></li>
 </ul>
 </div>
 <div id="is-your-data-compositional-i.e.-relative-abundances-from-high-throughput-sequencing" class="section level4">
-<h4>2. Is your data compositional (i.e., relative abundances from
-high-throughput sequencing)?</h4>
+<h4>2. Is your data compositional (i.e., relative abundances from high-throughput sequencing)?</h4>
 <ul>
-<li><p><strong>YES:</strong> You must account for the relative nature of
-your data.</p>
+<li><p><strong>YES:</strong> You must account for the relative nature of your data.</p>
 <ul>
-<li><p>The most statistically rigorous approach is to use a
-compositional metric. -&gt; Your primary choice should be
-<u>Aitchison</u> distance. Be prepared to handle zeros using a
-pseudocount or other imputation method.</p></li>
-<li><p>If you choose to use a non-compositional metric, select one that
-is robust to transformations to proportions and less sensitive to
-extreme values. -&gt; Good secondary choices include <u>Hellinger</u>,
-<u>Jensen-Shannon Divergence</u>, or <u>Horn-Morisita</u>. Note that
-these do not fully address the compositionality issue but are often
-better behaved than Bray-Curtis or Euclidean on relative data.</p></li>
+<li><p>The most statistically rigorous approach is to use a compositional metric. -&gt; Your primary choice should be <u>Aitchison</u> distance. Be prepared to handle zeros using a pseudocount or other imputation method.</p></li>
+<li><p>If you choose to use a non-compositional metric, select one that is robust to transformations to proportions and less sensitive to extreme values. -&gt; Good secondary choices include <u>Hellinger</u>, <u>Jensen-Shannon Divergence</u>, or <u>Horn-Morisita</u>. Note that these do not fully address the compositionality issue but are often better behaved than Bray-Curtis or Euclidean on relative data.</p></li>
 </ul></li>
-<li><p><strong>NO:</strong> Your data represents absolute counts or
-measurements (e.g., from microscopy or quantitative PCR). Proceed to
-Question 3.</p></li>
+<li><p><strong>NO:</strong> Your data represents absolute counts or measurements (e.g., from microscopy or quantitative PCR). Proceed to Question 3.</p></li>
 </ul>
 </div>
 <div id="what-is-the-primary-ecological-signal-you-want-to-detect" class="section level4">
 <h4>3. What is the primary ecological signal you want to detect?</h4>
 <ul>
-<li><p>Presence/Absence of specific taxa (Community Membership): You are
-interested in which species are present, regardless of their
-abundance.</p>
+<li><p>Presence/Absence of specific taxa (Community Membership): You are interested in which species are present, regardless of their abundance.</p>
 <ul>
-<li>-&gt; Choose a Qualitative (Binary) Metric. Your best options are
-<u>Jaccard</u> (the standard for turnover) or <u>Dice-Sorensen</u>
-(which gives more weight to shared species).</li>
+<li>-&gt; Choose a Qualitative (Binary) Metric. Your best options are <u>Jaccard</u> (the standard for turnover) or <u>Dice-Sorensen</u> (which gives more weight to shared species).</li>
 </ul></li>
-<li><p>Shifts in the abundance of taxa (Community Structure): You are
-interested in which species are dominant and how their abundances
-change.</p>
+<li><p>Shifts in the abundance of taxa (Community Structure): You are interested in which species are dominant and how their abundances change.</p>
 <ul>
 <li><p>-&gt; Choose a Quantitative Metric.</p>
 <ul>
-<li><p>If you want a robust, widely understood standard that is
-sensitive to dominant taxa -&gt; Use <u>Bray-Curtis</u>.</p></li>
-<li><p>If your data consists of raw integer counts and you are concerned
-about sample size effects -&gt; Use the <u>Morisita index</u>.</p></li>
-<li><p>If you want to down-weight the influence of hyper-dominant
-species for a more balanced view of abundance changes -&gt; Use the
-<u>Hellinger distance</u>.</p></li>
-<li><p>If you are concerned about small changes in very rare taxa being
-amplified -&gt; Avoid the Canberra distance.</p></li>
+<li><p>If you want a robust, widely understood standard that is sensitive to dominant taxa -&gt; Use <u>Bray-Curtis</u>.</p></li>
+<li><p>If your data consists of raw integer counts and you are concerned about sample size effects -&gt; Use the <u>Morisita index</u>.</p></li>
+<li><p>If you want to down-weight the influence of hyper-dominant species for a more balanced view of abundance changes -&gt; Use the <u>Hellinger distance</u>.</p></li>
+<li><p>If you are concerned about small changes in very rare taxa being amplified -&gt; Avoid the Canberra distance.</p></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -334,107 +98,40 @@ amplified -&gt; Avoid the Canberra distance.</p></li>
 </div>
 <div id="case-studies-matching-metrics-to-microbiome-research-questions" class="section level3">
 <h3>Case Studies: Matching Metrics to Microbiome Research Questions</h3>
-<p>The following case studies illustrate how the choice of metric
-directly influences the ability to answer a specific biological
-question.</p>
+<p>The following case studies illustrate how the choice of metric directly influences the ability to answer a specific biological question.</p>
 <div id="case-study-1-does-antibiotic-treatment-eliminate-specific-rare-potentially-pathogenic-taxa" class="section level4">
-<h4>Case Study 1: Does antibiotic treatment eliminate specific rare,
-potentially pathogenic taxa?</h4>
+<h4>Case Study 1: Does antibiotic treatment eliminate specific rare, potentially pathogenic taxa?</h4>
 <ul>
-<li><p><strong>Research Question:</strong> This question is explicitly
-about the presence or absence of key organisms, which are likely to be
-rare in the overall community. The massive shifts in abundant, commensal
-bacteria are secondary to the primary question of pathogen
-eradication.</p></li>
-<li><p><strong>Recommended Metric:</strong> <u>Jaccard</u> or
-<u>Unweighted UniFrac</u>.</p></li>
-<li><p><strong>Justification:</strong> A quantitative metric like
-Bray-Curtis would be dominated by the large-scale disruption of dominant
-taxa like Bacteroides or Faecalibacterium. The signal of the rare
-pathogen’s disappearance could be completely lost. In contrast, a
-qualitative metric like Jaccard treats the disappearance of the pathogen
-(a change from 1 to 0) as a significant event, directly addressing the
-research question. If a phylogenetic tree is available, Unweighted
-UniFrac is even better, as it would capture the loss of an entire
-evolutionary lineage, which might be more biologically meaningful than
-the loss of a single ASV.</p></li>
+<li><p><strong>Research Question:</strong> This question is explicitly about the presence or absence of key organisms, which are likely to be rare in the overall community. The massive shifts in abundant, commensal bacteria are secondary to the primary question of pathogen eradication.</p></li>
+<li><p><strong>Recommended Metric:</strong> <u>Jaccard</u> or <u>Unweighted UniFrac</u>.</p></li>
+<li><p><strong>Justification:</strong> A quantitative metric like Bray-Curtis would be dominated by the large-scale disruption of dominant taxa like Bacteroides or Faecalibacterium. The signal of the rare pathogen’s disappearance could be completely lost. In contrast, a qualitative metric like Jaccard treats the disappearance of the pathogen (a change from 1 to 0) as a significant event, directly addressing the research question. If a phylogenetic tree is available, Unweighted UniFrac is even better, as it would capture the loss of an entire evolutionary lineage, which might be more biologically meaningful than the loss of a single ASV.</p></li>
 </ul>
 </div>
 <div id="case-study-2-how-does-a-high-fiber-vs.-high-fat-diet-alter-the-overall-gut-microbiome-structure" class="section level4">
-<h4>Case Study 2: How does a high-fiber vs. high-fat diet alter the
-overall gut microbiome structure?</h4>
+<h4>Case Study 2: How does a high-fiber vs. high-fat diet alter the overall gut microbiome structure?</h4>
 <ul>
-<li><p><strong>Research Question:</strong> This question concerns broad,
-systemic shifts in the community’s metabolic capacity. The expected
-signal is a change in the abundance of major functional guilds—for
-example, an increase in fiber-degrading Firmicutes and a decrease in
-bile-acid-metabolizing bacteria.</p></li>
-<li><p><strong>Recommended Metrics:</strong> <u>Bray-Curtis</u> and
-<u>Hellinger</u>.</p></li>
-<li><p><strong>Justification:</strong> This question is about community
-structure and the abundance of major players. Bray-Curtis is an
-excellent choice as it is sensitive to these shifts in dominant and
-abundant taxa. Using Hellinger as a complementary metric is a robust
-strategy. The Hellinger distance, by using a square-root transformation,
-will down-weight the influence of the most hyper-dominant taxa,
-providing a slightly different and potentially more stable view of the
-overall structural change. If both metrics show a significant difference
-between diet groups, the conclusion is very strong.</p></li>
+<li><p><strong>Research Question:</strong> This question concerns broad, systemic shifts in the community’s metabolic capacity. The expected signal is a change in the abundance of major functional guilds—for example, an increase in fiber-degrading Firmicutes and a decrease in bile-acid-metabolizing bacteria.</p></li>
+<li><p><strong>Recommended Metrics:</strong> <u>Bray-Curtis</u> and <u>Hellinger</u>.</p></li>
+<li><p><strong>Justification:</strong> This question is about community structure and the abundance of major players. Bray-Curtis is an excellent choice as it is sensitive to these shifts in dominant and abundant taxa. Using Hellinger as a complementary metric is a robust strategy. The Hellinger distance, by using a square-root transformation, will down-weight the influence of the most hyper-dominant taxa, providing a slightly different and potentially more stable view of the overall structural change. If both metrics show a significant difference between diet groups, the conclusion is very strong.</p></li>
 </ul>
 </div>
 <div id="case-study-3-comparing-gut-communities-with-vastly-different-dominant-phyla-e.g.-bacteroidetes-dominant-vs.-firmicutes-dominant." class="section level4">
-<h4>Case Study 3: Comparing gut communities with vastly different
-dominant phyla (e.g., Bacteroidetes-dominant
-vs. Firmicutes-dominant).</h4>
+<h4>Case Study 3: Comparing gut communities with vastly different dominant phyla (e.g., Bacteroidetes-dominant vs. Firmicutes-dominant).</h4>
 <ul>
-<li><p><strong>Research Question:</strong> The goal is to understand
-what other, more subtle structural differences exist between these two
-community types, beyond the obvious phylum-level dominance. Are the
-relative proportions of less abundant genera within the Proteobacteria
-different, for example?</p></li>
-<li><p><strong>Recommended Metric:</strong> <u>Aitchison
-distance</u>.</p></li>
-<li><p><strong>Justification:</strong> This is a classic
-compositionality problem. In a Bray-Curtis analysis, the massive
-difference in the abundance of Firmicutes vs. Bacteroidetes would create
-such a large distance between the two sample types that all other
-variation would be rendered invisible. The ordination plot would likely
-show two tight, distant clusters, but reveal nothing about the internal
-structure of those clusters. Aitchison distance, by using log-ratios,
-effectively normalizes for the dominant phylum and calculates the
-distance based on the relative proportions of all other taxa to one
-another. This allows the researcher to “see through” the dominance
-effect and investigate the more subtle structural differences that
-directly address the research question.</p></li>
+<li><p><strong>Research Question:</strong> The goal is to understand what other, more subtle structural differences exist between these two community types, beyond the obvious phylum-level dominance. Are the relative proportions of less abundant genera within the Proteobacteria different, for example?</p></li>
+<li><p><strong>Recommended Metric:</strong> <u>Aitchison distance</u>.</p></li>
+<li><p><strong>Justification:</strong> This is a classic compositionality problem. In a Bray-Curtis analysis, the massive difference in the abundance of Firmicutes vs. Bacteroidetes would create such a large distance between the two sample types that all other variation would be rendered invisible. The ordination plot would likely show two tight, distant clusters, but reveal nothing about the internal structure of those clusters. Aitchison distance, by using log-ratios, effectively normalizes for the dominant phylum and calculates the distance based on the relative proportions of all other taxa to one another. This allows the researcher to “see through” the dominance effect and investigate the more subtle structural differences that directly address the research question.</p></li>
 </ul>
 </div>
 <div id="case-study-4-are-the-microbial-communities-in-two-soil-types-different-due-to-the-loss-of-a-deep-evolutionary-lineage-or-due-to-shifts-within-the-same-major-families" class="section level4">
-<h4>Case Study 4: Are the microbial communities in two soil types
-different due to the loss of a deep evolutionary lineage or due to
-shifts within the same major families?</h4>
+<h4>Case Study 4: Are the microbial communities in two soil types different due to the loss of a deep evolutionary lineage or due to shifts within the same major families?</h4>
 <ul>
-<li><p><strong>Research Question:</strong> This question is explicitly
-phylogenetic and hierarchical. It seeks to distinguish between two
-distinct types of evolutionary change.</p></li>
-<li><p><strong>Recommended Metrics:</strong> <u>Generalized UniFrac
-(GUniFrac)</u> with varying alpha values, and comparison of
-<u>Unweighted and Weighted UniFrac</u>.</p></li>
-<li><p><strong>Justification:</strong> A non-phylogenetic metric cannot
-answer this question. The best approach is to use the GUniFrac
-framework. The researcher would calculate the distance matrix using
-multiple values of α (e.g., 0, 0.5, and 1). If the separation between
-soil types is most significant when α=0 (Unweighted UniFrac), it
-suggests the difference is driven by the presence/absence of entire
-clades (a deep evolutionary change). If the separation is strongest when
-α=1 (Weighted UniFrac), it suggests the difference is due to abundance
-shifts within lineages that are present in both soils (a shallow
-change). If the signal is strongest at α=0.5, it points to changes in
-moderately abundant taxa as the key drivers, providing the most nuanced
-answer.</p></li>
+<li><p><strong>Research Question:</strong> This question is explicitly phylogenetic and hierarchical. It seeks to distinguish between two distinct types of evolutionary change.</p></li>
+<li><p><strong>Recommended Metrics:</strong> <u>Generalized UniFrac (GUniFrac)</u> with varying alpha values, and comparison of <u>Unweighted and Weighted UniFrac</u>.</p></li>
+<li><p><strong>Justification:</strong> A non-phylogenetic metric cannot answer this question. The best approach is to use the GUniFrac framework. The researcher would calculate the distance matrix using multiple values of α (e.g., 0, 0.5, and 1). If the separation between soil types is most significant when α=0 (Unweighted UniFrac), it suggests the difference is driven by the presence/absence of entire clades (a deep evolutionary change). If the separation is strongest when α=1 (Weighted UniFrac), it suggests the difference is due to abundance shifts within lineages that are present in both soils (a shallow change). If the signal is strongest at α=0.5, it points to changes in moderately abundant taxa as the key drivers, providing the most nuanced answer.</p></li>
 </ul>
 <hr>
-<p><small> Content generated by Google Gemini. Verified and formatted by
-Daniel Smith. Sept. 5th, 2025. </small></p>
+<p><small> Content generated by Google Gemini. Verified and formatted by Daniel Smith. Sept. 5th, 2025. </small></p>
 </div>
 </div>
 </div>

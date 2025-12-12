@@ -1,7 +1,7 @@
 Package: ecodive
 Type: Package
 Title: Parallel and Memory-Efficient Ecological Diversity Metrics
-Version: 2.2.0
+Version: 2.2.1
 Authors@R: c(
     person(
       "Daniel P.", "Smith",
@@ -30,10 +30,10 @@ Suggests: knitr, Matrix, parallelly, rmarkdown, slam, testthat (>=
         3.0.0)
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2025-12-03 00:08:17 UTC; Daniel
+Packaged: 2025-12-12 17:25:19 UTC; Daniel
 Author: Daniel P. Smith [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-2479-2044>),
   Alkek Center for Metagenomics and Microbiome Research [cph, fnd]
 Maintainer: Daniel P. Smith <dansmith01@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-12-04 00:40:02 UTC
+Date/Publication: 2025-12-12 17:40:03 UTC

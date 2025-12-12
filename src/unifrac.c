@@ -542,11 +542,17 @@ SEXP C_unifrac(
   n_dist                = n_samples * (n_samples - 1) / 2;
   SEXP sexp_result_dist = PROTECT(allocVector(REALSXP, n_dist));
   dist_vec              = REAL(sexp_result_dist);
-  setAttrib(sexp_result_dist, R_ClassSymbol,      mkString("dist"));
-  setAttrib(sexp_result_dist, mkString("Size"),   ScalarInteger(n_samples));
-  setAttrib(sexp_result_dist, mkString("Diag"),   ScalarLogical(0));
-  setAttrib(sexp_result_dist, mkString("Upper"),  ScalarLogical(0));
-  setAttrib(sexp_result_dist, mkString("Labels"), em->sexp_sample_names);
+  
+  SEXP sexp_dist_class = PROTECT(mkString("dist"));
+  SEXP sexp_size_val   = PROTECT(ScalarInteger(n_samples));
+  SEXP sexp_diag_val   = PROTECT(ScalarLogical(0));
+  SEXP sexp_upper_val  = PROTECT(ScalarLogical(0));
+  
+  setAttrib(sexp_result_dist, R_ClassSymbol, sexp_dist_class);
+  setAttrib(sexp_result_dist, install("Size"), sexp_size_val);
+  setAttrib(sexp_result_dist, install("Diag"), sexp_diag_val);
+  setAttrib(sexp_result_dist, install("Upper"), sexp_upper_val);
+  setAttrib(sexp_result_dist, install("Labels"), em->sexp_sample_names);
   
   
   // Avoid allocating pairs_vec for common all-vs-all case
@@ -565,7 +571,7 @@ SEXP C_unifrac(
     
     if (n_pairs == 0) {
       free_all();
-      UNPROTECT(1);
+      UNPROTECT(5);
       return sexp_result_dist;
     }
   }
@@ -587,7 +593,7 @@ SEXP C_unifrac(
       for (i = 0; i < n; i++) pthread_join(   tids[i], NULL);
       
       free_all();
-      UNPROTECT(1);
+      UNPROTECT(5);
       return sexp_result_dist;
     }
   #endif
@@ -600,7 +606,6 @@ SEXP C_unifrac(
   calc_dist_vec(&thread_i);
   
   free_all();
-  UNPROTECT(1);
+  UNPROTECT(5);
   return sexp_result_dist;
 }
-
