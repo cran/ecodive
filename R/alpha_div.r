@@ -1,4 +1,4 @@
-# Copyright (c) 2025 ecodive authors
+# Copyright (c) 2026 ecodive authors
 # Licensed under the MIT License: https://opensource.org/license/mit
 
 
@@ -98,102 +98,49 @@ alpha_div <- function (
 }
 
 
-
-
-
-#' Alpha Diversity Metrics
+#' Abundance-based Coverage Estimator (ACE)
 #' 
+#' A non-parametric estimator of species richness that separates features into abundant and rare groups.
 #' 
 #' @inherit documentation
-#' @name adiv_functions
-#' @family adiv_functions
+#' @inherit adiv_assert_integer
 #' 
-#' @return A numeric vector.
+#' @family Richness metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
 #' 
+#' @details
+#' The ACE metric separates features into "abundant" and "rare" groups based on a cutoff (usually 10 counts). It assumes that the presence of abundant species is certain, while the true number of rare species must be estimated.
 #' 
-#' @section Formulas:
+#' **Equations:**
 #' 
-#' Prerequisite: all counts are whole numbers.
+#' \deqn{C_{ace} = 1 - \frac{F_1}{X_{rare}}}
 #' 
-#' Given:
+#' \deqn{\gamma_{ace}^2 = \max\left[\frac{F_{rare} \sum_{i=1}^{r}i(i-1)F_i}{C_{ace}X_{rare}(X_{rare} - 1)} - 1, 0\right]}
 #' 
-#' * \eqn{n} : The number of features (e.g. species, OTUs, ASVs, etc).
-#' * \eqn{X_i} : Integer count of the \eqn{i}-th feature.
-#' * \eqn{X_T} : Total of all counts (i.e. sequencing depth). \eqn{X_T = \sum_{i=1}^{n} X_i}
-#' * \eqn{P_i} : Proportional abundance of the \eqn{i}-th feature. \eqn{P_i = X_i / X_T}
-#' * \eqn{F_1} : Number of features where \eqn{X_i = 1} (i.e. singletons).
-#' * \eqn{F_2} : Number of features where \eqn{X_i = 2} (i.e. doubletons).
+#' \deqn{D_{ace} = F_{abund} + \frac{F_{rare}}{C_{ace}} + \frac{F_1}{C_{ace}}\gamma_{ace}^2}
 #' 
-#' |              |                                    |
-#' | :----------- | :--------------------------------- |
-#' | **Abundance-based Coverage Estimator (ACE)** <br> `ace()`         | See below. |
-#' | **Berger-Parker Index**                      <br> `berger()`      | \eqn{\max(P_i)} |
-#' | **Brillouin Index**                          <br> `brillouin()`   | \eqn{\displaystyle \frac{\ln{[(\sum_{i = 1}^{n} X_i)!]} - \sum_{i = 1}^{n} \ln{(X_i!)}}{\sum_{i = 1}^{n} X_i}} |
-#' | **Chao1**                                    <br> `chao1()`       | \eqn{\displaystyle n + \frac{(F_1)^2}{2 F_2}} |
-#' | **Faith's Phylogenetic Diversity**           <br> `faith()`       | See below. |
-#' | **Fisher's Alpha (\eqn{\alpha})**            <br> `fisher()`      | \eqn{\displaystyle \frac{n}{\alpha} = \ln{\left(1 + \frac{X_T}{\alpha}\right)}} <br> The value of \eqn{\alpha} must be solved for iteratively. |
-#' | **Gini-Simpson Index**                       <br> `simpson()`     | \eqn{1 - \sum_{i = 1}^{n} P_i^2} |
-#' | **Inverse Simpson Index**                    <br> `inv_simpson()` | \eqn{1 / \sum_{i = 1}^{n} P_i^2} |
-#' | **Margalef's Richness Index**                <br> `margalef()`    | \eqn{\displaystyle \frac{n - 1}{\ln{X_T}}} |
-#' | **McIntosh Index**                           <br> `mcintosh()`    | \eqn{\displaystyle \frac{X_T - \sqrt{\sum_{i = 1}^{n} (X_i)^2}}{X_T - \sqrt{X_T}}} |
-#' | **Menhinick's Richness Index**               <br> `menhinick()`   | \eqn{\displaystyle \frac{n}{\sqrt{X_T}}} |
-#' | **Observed Features**                        <br> `observed()`    | \eqn{n} |
-#' | **Shannon Diversity Index**                  <br> `shannon()`     | \eqn{-\sum_{i = 1}^{n} P_i \times \ln(P_i)} |
-#' | **Squares Richness Estimator**               <br> `squares()`     | \eqn{\displaystyle n + \frac{(F_1)^2 \sum_{i=1}^{n} (X_i)^2}{X_T^2 - nF_1}} |
-#' 
-#' 
-#' ## Abundance-based Coverage Estimator (ACE)
-#' 
-#' Given:
-#' * \eqn{n} : The number of features (e.g. species, OTUs, ASVs, etc).
-#' * \eqn{r} : Rare cutoff. Features with \eqn{\le r} counts are considered rare.
-#' * \eqn{X_i} : Integer count of the \eqn{i}-th feature.
+#' Where:
+#' * \eqn{r} : Rare cutoff (default 10). Features with \eqn{\le r} counts are considered rare.
 #' * \eqn{F_i} : Number of features with exactly \eqn{i} counts.
-#' * \eqn{F_1} : Number of features where \eqn{X_i = 1} (i.e. singletons).
+#' * \eqn{F_1} : Number of features where \eqn{X_i = 1} (singletons).
 #' * \eqn{F_{rare}} : Number of rare features where \eqn{X_i \le r}.
 #' * \eqn{F_{abund}} : Number of abundant features where \eqn{X_i > r}.
 #' * \eqn{X_{rare}} : Total counts belonging to rare features.
-#' * \eqn{C_{ace}} : The sample abundance coverage estimator, defined below.
-#' * \eqn{\gamma_{ace}^2} : The estimated coefficient of variation, defined below.
-#' * \eqn{D_{ace}} : Estimated number of features in the sample.
+#' * \eqn{C_{ace}} : The sample abundance coverage estimator.
+#' * \eqn{\gamma_{ace}^2} : The estimated coefficient of variation.
 #' 
-#' \eqn{\displaystyle C_{ace} = 1 - \frac{F_1}{X_{rare}}}
+#' **Parameter: cutoff**
+#' The integer threshold distinguishing rare from abundant species. Standard practice is to use 10.
 #' 
-#' \eqn{\displaystyle \gamma_{ace}^2 = \max\left[\frac{F_{rare} \sum_{i=1}^{r}i(i-1)F_i}{C_{ace}X_{rare}(X_{rare} - 1)} - 1, 0\right]}
-#' 
-#' \eqn{\displaystyle D_{ace} = F_{abund} + \frac{F_{rare}}{C_{ace}} + \frac{F_1}{C_{ace}}\gamma_{ace}^2 }
-#' 
-#' 
-#' 
-#' 
-#' ## Faith's Phylogenetic Diversity (Faith's PD)
-#' 
-#' Given \eqn{n} branches with lengths \eqn{L} and a sample's abundances 
-#' \eqn{A} on each of those branches coded as 1 for present or 0 for absent:
-#' 
-#' \eqn{\sum_{i = 1}^{n} L_i A_i}
-#' 
+#' @references
+#' Chao, A., & Lee, S. M. (1992). Estimating the number of classes via sample coverage. *Journal of the American Statistical Association*, 87(417), 210-217. \doi{10.1080/01621459.1992.10475194}
 #' 
 #' @export
 #' @examples
-#'     # Example counts matrix
-#'     t(ex_counts)
-#'     
 #'     ace(ex_counts)
-#'     
-#'     chao1(ex_counts)
-#'     
-#'     squares(ex_counts)
-#'     
-NULL
-
-
-#  Abundance-based Coverage Estimator (ACE)
-#' @export
-#' @rdname adiv_functions
 ace <- function (counts, cutoff = 10L, margin = 1L, cpus = n_cpus()) {
   
-  norm <- NULL
+  norm <- 'none'
   validate_args()
   assert_integer_counts()
   
@@ -201,25 +148,79 @@ ace <- function (counts, cutoff = 10L, margin = 1L, cpus = n_cpus()) {
 }
 
 
-#  Berger-Parker
-#  max(x / sum(x))
+#' Berger-Parker Index
+#' 
+#' A measure of the numerical importance of the most abundant species.
+#' 
+#' @inherit documentation
+#' @inherit adiv_percent_normalized
+#' 
+#' @family Dominance metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' The Berger-Parker index is defined as the proportional abundance of the most dominant feature:
+#' \deqn{\max(P_i)}
+#' 
+#' Where:
+#' * \eqn{P_i} : Proportional abundance of the \eqn{i}-th feature.
+#' 
+#' **Base R Equivalent:**
+#' ```r
+#' x <- ex_counts[1,]
+#' p <- x / sum(x)
+#' max(p)
+#' ```
+#' 
+#' @references
+#' Berger, W. H., & Parker, F. L. (1970). Diversity of planktonic foraminifera in deep-sea sediments. *Science*, 168(3937), 1345-1347. \doi{10.1126/science.168.3937.1345}
+#' 
 #' @export
-#' @rdname adiv_functions
-berger <- function (counts, norm = 'percent', margin = 1L, cpus = n_cpus()) {
+#' @examples
+#'     berger(ex_counts)
+berger <- function (counts, margin = 1L, cpus = n_cpus()) {
   
+  norm <- 'percent'
   validate_args()
+  
   .Call(C_alpha_div, ADIV_BERGER, counts, margin, norm, cpus, NULL)
 }
 
 
-#  Brillouin Index
-#  note: lgamma(x + 1) == log(x!)
-#  (lgamma(sum(x) + 1) - sum(lgamma(x + 1))) / sum(x)
+#' Brillouin Index
+#' 
+#' A diversity index derived from information theory, appropriate for fully censused communities.
+#' 
+#' @inherit documentation
+#' @inherit adiv_assert_integer
+#' 
+#' @family Diversity metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' The Brillouin index is defined as:
+#' \deqn{\frac{\ln{[(\sum_{i = 1}^{n} X_i)!]} - \sum_{i = 1}^{n} \ln{(X_i!)}}{\sum_{i = 1}^{n} X_i}}
+#' 
+#' Where:
+#' * \eqn{n} : The number of features.
+#' * \eqn{X_i} : Integer count of the \eqn{i}-th feature.
+#' 
+#' **Base R Equivalent:**
+#' ```r
+#' x <- ex_counts[1,]
+#' # note: lgamma(x + 1) == log(x!)
+#' (lgamma(sum(x) + 1) - sum(lgamma(x + 1))) / sum(x)
+#' ```
+#' 
+#' @references
+#' Brillouin, L. (1956). Science and information theory. Academic Press.
+#' 
 #' @export
-#' @rdname adiv_functions
+#' @examples
+#'     brillouin(ex_counts)
 brillouin <- function (counts, margin = 1L, cpus = n_cpus()) {
   
-  norm <- NULL
+  norm <- 'none'
   validate_args()
   assert_integer_counts()
   
@@ -227,13 +228,40 @@ brillouin <- function (counts, margin = 1L, cpus = n_cpus()) {
 }
 
 
-#  Chao1
-#  sum(x>0) + (sum(x == 1) ** 2) / (2 * sum(x == 2))
+#' Chao1 Richness Estimator
+#' 
+#' A non-parametric estimator of the lower bound of species richness.
+#' 
+#' @inherit documentation
+#' @inherit adiv_assert_integer
+#' 
+#' @family Richness metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' The Chao1 estimator uses the ratio of singletons to doubletons to estimate the number of missing species:
+#' \deqn{n + \frac{(F_1)^2}{2 F_2}}
+#' 
+#' Where:
+#' * \eqn{n} : The number of observed features.
+#' * \eqn{F_1} : Number of features observed once (singletons).
+#' * \eqn{F_2} : Number of features observed twice (doubletons).
+#' 
+#' **Base R Equivalent:**
+#' ```r
+#' x <- ex_counts[1,]
+#' sum(x>0) + (sum(x == 1) ** 2) / (2 * sum(x == 2))
+#' ```
+#' 
+#' @references
+#' Chao, A. (1984). Nonparametric estimation of the number of classes in a population. *Scandinavian Journal of Statistics*, 11, 265-270.
+#' 
 #' @export
-#' @rdname adiv_functions
+#' @examples
+#'     chao1(ex_counts)
 chao1 <- function (counts, margin = 1L, cpus = n_cpus()) {
   
-  norm <- NULL
+  norm <- 'none'
   validate_args()
   assert_integer_counts()
   
@@ -241,24 +269,73 @@ chao1 <- function (counts, margin = 1L, cpus = n_cpus()) {
 }
 
 
-#  Faith's Phylogenetic Diversity
+#' Faith's Phylogenetic Diversity (PD)
+#' 
+#' Calculates the sum of the branch lengths for all species present in a sample.
+#' 
+#' @inherit documentation
+#' @inherit adiv_binary_normalized
+#' 
+#' @family Phylogenetic metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' Faith's PD is defined as:
+#' \deqn{\sum_{i = 1}^{n} L_i A_i}
+#' 
+#' Where:
+#' * \eqn{n} : The number of branches in the phylogenetic tree.
+#' * \eqn{L_i} : The length of the \eqn{i}-th branch.
+#' * \eqn{A_i} : A binary value (1 if any descendants of branch \eqn{i} are present in the sample, 0 otherwise).
+#' 
+#' @references
+#' Faith, D. P. (1992). Conservation evaluation and phylogenetic diversity. *Biological Conservation*, 61(1), 1-10. \doi{10.1016/0006-3207(92)91201-3}
+#' 
 #' @export
-#' @rdname adiv_functions
+#' @examples
+#'     faith(ex_counts, tree = ex_tree)
 faith <- function (counts, tree = NULL, margin = 1L, cpus = n_cpus()) {
   
-  norm <- NULL
+  norm <- 'none'
   validate_args()
   
   .Call(C_alpha_div, ADIV_FAITH, counts, margin, norm, cpus, tree)
 }
 
 
-#  Fisher's Alpha
+#' Fisher's Alpha
+#' 
+#' A parametric diversity index assuming species abundances follow a log-series distribution.
+#' 
+#' @inherit documentation
+#' @inherit adiv_assert_integer
+#' 
+#' @family Diversity metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' Fisher's Alpha (\eqn{\alpha}) is the parameter in the equation:
+#' \deqn{\frac{n}{\alpha} = \ln{\left(1 + \frac{X_T}{\alpha}\right)}}
+#' 
+#' Where:
+#' * \eqn{n} : The number of features.
+#' * \eqn{X_T} : Total of all counts (sequencing depth).
+#' 
+#' The value of \eqn{\alpha} is solved for iteratively.
+#' 
+#' **Parameter: digits**
+#' 
+#' The precision (number of decimal places) to use when solving the equation.
+#' 
+#' @references
+#' Fisher, R. A., Corbet, A. S., & Williams, C. B. (1943). The relation between the number of species and the number of individuals in a random sample of an animal population. *Journal of Animal Ecology*, 12, 42-58. \doi{10.2307/1411}
+#' 
 #' @export
-#' @rdname adiv_functions
+#' @examples
+#'     fisher(ex_counts)
 fisher <- function (counts, digits = 3L, margin = 1L, cpus = n_cpus()) {
   
-  norm <- NULL
+  norm <- 'none'
   validate_args()
   assert_integer_counts()
   
@@ -266,25 +343,81 @@ fisher <- function (counts, digits = 3L, margin = 1L, cpus = n_cpus()) {
 }
 
 
-#  Inverse Simpson Index
-#  p <- x / sum(x)
-#  1 / sum(p ** 2)
+#' Inverse Simpson Index
+#' 
+#' A transformation of the Simpson index that represents the "effective number of species".
+#' 
+#' @inherit documentation
+#' @inherit adiv_percent_normalized
+#' 
+#' @family Diversity metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' The Inverse Simpson index is defined as:
+#' \deqn{1 / \sum_{i = 1}^{n} P_i^2}
+#' 
+#' Where:
+#' * \eqn{n} : The number of features.
+#' * \eqn{P_i} : Proportional abundance of the \eqn{i}-th feature.
+#' 
+#' **Base R Equivalent:**
+#' ```r
+#' x <- ex_counts[1,]
+#' p <- x / sum(x)
+#' 1 / sum(p ** 2)
+#' ```
+#' 
+#' @references
+#' Simpson, E. H. (1949). Measurement of diversity. *Nature*, 163, 688. \doi{10.1038/163688a0}
+#' 
 #' @export
-#' @rdname adiv_functions
-inv_simpson <- function (counts, norm = 'percent', margin = 1L, cpus = n_cpus()) {
+#' @examples
+#'     inv_simpson(ex_counts)
+inv_simpson <- function (counts, margin = 1L, cpus = n_cpus()) {
   
+  norm <- 'percent'
   validate_args()
+  
   .Call(C_alpha_div, ADIV_INV_SIMPSON, counts, margin, norm, cpus, NULL)
 }
 
 
-#  Margalef's Richness Index
-#  (sum(x > 0) - 1) / log(sum(x))
+#' Margalef's Richness Index
+#' 
+#' A richness metric that normalizes the number of species by the log of the total sample size.
+#' 
+#' @inherit documentation
+#' @inherit adiv_assert_integer
+#' 
+#' @family Richness metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' Margalef's index is defined as:
+#' \deqn{\frac{n - 1}{\ln{X_T}}}
+#' 
+#' Where:
+#' * \eqn{n} : The number of features.
+#' * \eqn{X_T} : Total of all counts (sequencing depth).
+#' 
+#' **Base R Equivalent:**
+#' ```r
+#' x <- ex_counts[1,]
+#' (sum(x > 0) - 1) / log(sum(x))
+#' ```
+#' 
+#' @references
+#' Margalef, R. (1958). Information theory in ecology. *General Systems*, 3, 36-71.
+#' 
+#' Gamito, S. (2010). Caution is needed when applying Margalef diversity index. *Ecological Indicators*, 10(2), 550-551. \doi{10.1016/j.ecolind.2009.07.006}
+#' 
 #' @export
-#' @rdname adiv_functions
+#' @examples
+#'     margalef(ex_counts)
 margalef <- function (counts, margin = 1L, cpus = n_cpus()) {
   
-  norm <- NULL
+  norm <- 'none'
   validate_args()
   assert_integer_counts()
   
@@ -292,13 +425,40 @@ margalef <- function (counts, margin = 1L, cpus = n_cpus()) {
 }
 
 
-#  McIntosh Index
-#  (sum(x) - sqrt(sum(x^2))) / (sum(x) - sqrt(sum(x)))
+#' McIntosh Index
+#' 
+#' A dominance index based on the Euclidean distance from the origin.
+#' 
+#' @inherit documentation
+#' @inherit adiv_assert_integer
+#' 
+#' @family Dominance metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' The McIntosh index is defined as:
+#' \deqn{\frac{X_T - \sqrt{\sum_{i = 1}^{n} (X_i)^2}}{X_T - \sqrt{X_T}}}
+#' 
+#' Where:
+#' * \eqn{n} : The number of features.
+#' * \eqn{X_i} : Integer count of the \eqn{i}-th feature.
+#' * \eqn{X_T} : Total of all counts.
+#' 
+#' **Base R Equivalent:**
+#' ```r
+#' x <- ex_counts[1,]
+#' (sum(x) - sqrt(sum(x^2))) / (sum(x) - sqrt(sum(x)))
+#' ```
+#' 
+#' @references
+#' McIntosh, R. P. (1967). An index of diversity and the relation of certain concepts to diversity. *Ecology*, 48(3), 392-404. \doi{10.2307/1932674}
+#' 
 #' @export
-#' @rdname adiv_functions
+#' @examples
+#'     mcintosh(ex_counts)
 mcintosh <- function (counts, margin = 1L, cpus = n_cpus()) {
   
-  norm <- NULL
+  norm <- 'none'
   validate_args()
   assert_integer_counts()
   
@@ -306,13 +466,39 @@ mcintosh <- function (counts, margin = 1L, cpus = n_cpus()) {
 }
 
 
-#  Menhinick's Richness Index
-#  sum(x > 0) / sqrt(sum(x))
+#' Menhinick's Richness Index
+#' 
+#' A richness metric that normalizes the number of species by the square root of the total sample size.
+#' 
+#' @inherit documentation
+#' @inherit adiv_assert_integer
+#' 
+#' @family Richness metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' Menhinick's index is defined as:
+#' \deqn{\frac{n}{\sqrt{X_T}}}
+#' 
+#' Where:
+#' * \eqn{n} : The number of features.
+#' * \eqn{X_T} : Total of all counts.
+#' 
+#' **Base R Equivalent:**
+#' ```r
+#' x <- ex_counts[1,]
+#' sum(x > 0) / sqrt(sum(x))
+#' ```
+#' 
+#' @references
+#' Menhinick, E. F. (1964). A comparison of some species-individuals diversity indices applied to samples of field insects. *Ecology*, 45(4), 859-861. \doi{10.2307/1934933}
+#' 
 #' @export
-#' @rdname adiv_functions
+#' @examples
+#'     menhinick(ex_counts)
 menhinick <- function (counts, margin = 1L, cpus = n_cpus()) {
   
-  norm <- NULL
+  norm <- 'none'
   validate_args()
   assert_integer_counts()
   
@@ -320,53 +506,158 @@ menhinick <- function (counts, margin = 1L, cpus = n_cpus()) {
 }
 
 
-#  Observed Features
-#  sum(x>0)
+#' Observed Features
+#' 
+#' The count of unique features (richness) in a sample.
+#' 
+#' @inherit documentation
+#' @inherit adiv_binary_normalized
+#' 
+#' @family Richness metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' Observed features is defined simply as the number of features with non-zero abundance:
+#' \deqn{n}
+#' 
+#' **Base R Equivalent:**
+#' ```r
+#' x <- ex_counts[1,]
+#' sum(x > 0)
+#' ```
+#' 
 #' @export
-#' @rdname adiv_functions
+#' @examples
+#'     observed(ex_counts)
 observed <- function (counts, margin = 1L, cpus = n_cpus()) {
   
-  norm <- NULL
+  norm <- 'none'
   validate_args()
   
   .Call(C_alpha_div, ADIV_OBSERVED, counts, margin, norm, cpus, NULL)
 }
 
 
-#  Shannon Diversity Index
-#  p <- x / sum(x)
-#  -sum(p * log(p))
+#' Shannon Diversity Index
+#' 
+#' A commonly used diversity index accounting for both abundance and evenness.
+#' 
+#' @inherit documentation
+#' @inherit adiv_percent_normalized
+#' 
+#' @family Diversity metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' The Shannon index (entropy) is defined as:
+#' \deqn{-\sum_{i = 1}^{n} P_i \times \ln(P_i)}
+#' 
+#' Where:
+#' * \eqn{n} : The number of features.
+#' * \eqn{P_i} : Proportional abundance of the \eqn{i}-th feature.
+#' 
+#' **Base R Equivalent:**
+#' ```r
+#' x <- ex_counts[1,]
+#' p <- x / sum(x)
+#' -sum(p * log(p))
+#' ```
+#' 
+#' @references
+#' Shannon, C. E. (1948). A mathematical theory of communication. *Bell System Technical Journal*, 27, 379-423.
+#' 
+#' Shannon, C. E., & Weaver, W. (1949). *The Mathematical Theory of Communication*. University of Illinois Press.
+#'
 #' @export
-#' @rdname adiv_functions
-shannon <- function (counts, norm = 'percent', margin = 1L, cpus = n_cpus()) {
+#' @examples
+#'     shannon(ex_counts)
+shannon <- function (counts, margin = 1L, cpus = n_cpus()) {
   
+  norm <- 'percent'
   validate_args()
+  
   .Call(C_alpha_div, ADIV_SHANNON, counts, margin, norm, cpus, NULL)
 }
 
 
-#  Gini-Simpson Index
-#  p <- x / sum(x)
-#  1 - sum(p ** 2)
+#' Gini-Simpson Index
+#' 
+#' The probability that two entities taken at random from the dataset represent different types.
+#' 
+#' @inherit documentation
+#' @inherit adiv_percent_normalized
+#' 
+#' @family Diversity metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' The Gini-Simpson index is defined as:
+#' \deqn{1 - \sum_{i = 1}^{n} P_i^2}
+#' 
+#' Where:
+#' * \eqn{n} : The number of features.
+#' * \eqn{P_i} : Proportional abundance of the \eqn{i}-th feature.
+#' 
+#' **Base R Equivalent:**
+#' ```r
+#' x <- ex_counts[1,]
+#' p <- x / sum(x)
+#' 1 - sum(p ** 2)
+#' ```
+#' 
+#' @references
+#' Simpson, E. H. (1949). Measurement of diversity. *Nature*, 163, 688. \doi{10.1038/163688a0}
+#' 
 #' @export
-#' @rdname adiv_functions
-simpson <- function (counts, norm = 'percent', margin = 1L, cpus = n_cpus()) {
+#' @examples
+#'     simpson(ex_counts)
+simpson <- function (counts, margin = 1L, cpus = n_cpus()) {
   
+  norm <- 'percent'
   validate_args()
+  
   .Call(C_alpha_div, ADIV_SIMPSON, counts, margin, norm, cpus, NULL)
 }
 
 
-#  Squares Richness Estimator
-#  N  <- sum(x)      # sampling depth
-#  S  <- sum(x > 0)  # observed features
-#  F1 <- sum(x == 1) # singletons
-#  S + ((sum(x^2) * (F1^2)) / ((N^2) - F1 * S))
+#' Squares Richness Estimator
+#' 
+#' A richness estimator based on the concept of "squares" (counts of species observed once or twice).
+#' 
+#' @inherit documentation
+#' @inherit adiv_assert_integer
+#' 
+#' @family Richness metrics
+#' @seealso `alpha_div()`, `vignette('adiv')`
+#' 
+#' @details
+#' The Squares estimator is defined as:
+#' \deqn{n + \frac{(F_1)^2 \sum_{i=1}^{n} (X_i)^2}{X_T^2 - nF_1}}
+#' 
+#' Where:
+#' * \eqn{n} : The number of observed features.
+#' * \eqn{X_T} : Total of all counts.
+#' * \eqn{F_1} : Number of features observed once (singletons).
+#' * \eqn{X_i} : Integer count of the \eqn{i}-th feature.
+#' 
+#' **Base R Equivalent:**
+#' ```r
+#' x  <- ex_counts[1,]
+#' N  <- sum(x)      # sampling depth
+#' S  <- sum(x > 0)  # observed features
+#' F1 <- sum(x == 1) # singletons
+#' S + ((sum(x^2) * (F1^2)) / ((N^2) - F1 * S))
+#' ```
+#' 
+#' @references
+#' Alroy, J. (2018). Limits to species richness estimates based on subsampling. *Paleobiology*, 44(2), 177-194. \doi{10.1017/pab.2017.38}
+#' 
 #' @export
-#' @rdname adiv_functions
+#' @examples
+#'     squares(ex_counts)
 squares <- function (counts, margin = 1L, cpus = n_cpus()) {
   
-  norm <- NULL
+  norm <- 'none'
   validate_args()
   assert_integer_counts()
   

@@ -7,62 +7,60 @@
 beta_div(
   counts,
   metric,
-  norm = "percent",
-  power = 1.5,
+  margin = 1L,
+  norm = "none",
   pseudocount = NULL,
+  power = 1.5,
   alpha = 0.5,
   tree = NULL,
   pairs = NULL,
-  margin = 1L,
   cpus = n_cpus()
 )
 }
 \arguments{
-\item{counts}{A numeric matrix of count data where each column is a
-feature, and each row is a sample. Any object coercible with
-\code{as.matrix()} can be given here, as well as \code{phyloseq}, \code{rbiom},
-\code{SummarizedExperiment}, and \code{TreeSummarizedExperiment} objects. For
-optimal performance with very large datasets, see the guide in
-\code{vignette('performance')}.}
+\item{counts}{A numeric matrix of count data (samples \eqn{\times} features).
+Typically contains absolute abundances (integer counts), though
+proportions are also accepted by some diversity metrics.}
 
 \item{metric}{The name of a beta diversity metric. One of \code{c('aitchison', 'bhattacharyya', 'bray', 'canberra', 'chebyshev', 'chord', 'clark', 'divergence', 'euclidean', 'generalized_unifrac', 'gower', 'hamming', 'hellinger', 'horn', 'jaccard', 'jensen', 'jsd', 'lorentzian', 'manhattan', 'matusita', 'minkowski', 'morisita', 'motyka', 'normalized_unifrac', 'ochiai', 'psym_chisq', 'soergel', 'sorensen', 'squared_chisq', 'squared_chord', 'squared_euclidean', 'topsoe', 'unweighted_unifrac', 'variance_adjusted_unifrac', 'wave_hedges', 'weighted_unifrac')}. Flexible
 matching is supported (see below). Programmatic access via
 \code{list_metrics('beta')}.}
 
+\item{margin}{The margin containing samples. \code{1} if samples are rows,
+\code{2} if samples are columns. Ignored when \code{counts} is a special object
+class (e.g. \code{phyloseq}). Default: \code{1}}
+
 \item{norm}{Normalize the incoming counts. Options are:
-\describe{
-\item{\code{norm = "percent"} - }{ Relative abundance (sample abundances sum to 1). }
-\item{\code{norm = "binary"}  - }{ Unweighted presence/absence (each count is either 0 or 1). }
-\item{\code{norm = "clr"}     - }{ Centered log ratio. }
-\item{\code{norm = "none"}    - }{ No transformation. }
+\itemize{
+\item \code{'none'}: No transformation.
+\item \code{'percent'}: Relative abundance (sample abundances sum to 1).
+\item \code{'binary'}: Unweighted presence/absence (each count is either 0 or 1).
+\item \code{'clr'}: Centered log ratio.
 }
-Default: \code{'percent'}, which is the expected input for these formulas.}
 
-\item{power}{Scaling factor for the magnitude of differences between
-communities (\eqn{p}). Default: \code{1.5}}
+Default: \code{'none'}.}
 
-\item{pseudocount}{The value to add to all counts in \code{counts} to prevent
-taking \code{log(0)} for unobserved features. The default, \code{NULL}, selects
-the smallest non-zero value in \code{counts}.}
+\item{pseudocount}{Value added to counts to handle zeros when
+\code{norm = 'clr'}. Ignored for other normalization methods. See
+\strong{Pseudocount} section.}
 
-\item{alpha}{How much weight to give to relative abundances; a value
-between 0 and 1, inclusive. Setting \code{alpha=1} is equivalent to
-\code{normalized_unifrac()}.}
+\item{power}{Only used when \code{metric = 'minkowski'}. Scaling factor for the
+magnitude of differences between communities (\eqn{p}). Default: \code{1.5}}
 
-\item{tree}{A \code{phylo}-class object representing the phylogenetic tree for
-the OTUs in \code{counts}. The OTU identifiers given by \code{colnames(counts)}
-must be present in \code{tree}. Can be omitted if a tree is embedded with
-the \code{counts} object or as \code{attr(counts, 'tree')}.}
+\item{alpha}{Only used when \code{metric = 'generalized_unifrac'}. How much
+weight to give to relative abundances; a value between 0 and 1,
+inclusive. Setting \code{alpha=1} is equivalent to \code{normalized_unifrac()}.}
+
+\item{tree}{Only used by phylogeny-aware metrics. A \code{phylo}-class object
+representing the phylogenetic tree for the OTUs in \code{counts}. The OTU
+identifiers given by \code{colnames(counts)} must be present in \code{tree}. Can
+be omitted if a tree is embedded with the \code{counts} object or as
+\code{attr(counts, 'tree')}.}
 
 \item{pairs}{Which combinations of samples should distances be
 calculated for? The default value (\code{NULL}) calculates all-vs-all.
 Provide a numeric or logical vector specifying positions in the
 distance matrix to calculate. See examples.}
-
-\item{margin}{If your samples are in the matrix's rows, set to \code{1L}. If
-your samples are in columns, set to \code{2L}. Ignored when \code{counts} is a
-\code{phyloseq}, \code{rbiom}, \code{SummarizedExperiment}, or
-\code{TreeSummarizedExperiment} object. Default: \code{1L}}
 
 \item{cpus}{How many parallel processing threads should be used. The
 default, \code{n_cpus()}, will use all logical CPU cores.}
@@ -127,6 +125,43 @@ UniFrac names can be shortened to the first letter plus "unifrac". E.g.
 Finished code should always use the full primary option name to avoid
 ambiguity with future additions to the metrics list.
 }
+\section{Input Types}{
+
+
+The \code{counts} parameter is designed to accept a simple numeric matrix, but
+seamlessly supports objects from the following biological data packages:
+\itemize{
+\item \code{phyloseq}
+\item \code{rbiom}
+\item \code{SummarizedExperiment}
+\item \code{TreeSummarizedExperiment}
+}
+
+For large datasets, standard matrix operations may be slow. See
+\code{vignette('performance')} for details on using optimized formats
+(e.g. sparse matrices) and parallel processing.
+}
+
+\section{Pseudocount}{
+
+The \code{pseudocount} parameter is only relevant when \code{norm = 'clr'}.
+
+Zeros are undefined in the centered log-ratio (CLR) transformation. If
+\code{norm = 'clr'}, \code{pseudocount} is \code{NULL} (the default), and
+zeros are detected, the function uses half the minimum non-zero value
+(\code{min(x[x>0]) / 2}) and issues a warning.
+
+To suppress the warning, provide an explicit value (e.g., \code{1}).
+
+\strong{Why this matters:} The choice of pseudocount is not neutral; it acts as
+a weighting factor that can significantly distort downstream results,
+especially for sparse datasets. See Gloor et al. (2017) and Kaul et al.
+(2017) for open-access discussions on the mathematical implications, or
+Costea et al. (2014) for the impact on community clustering.
+
+See \code{\link{aitchison}} for references.
+}
+
 \examples{
     # Example counts matrix
     ex_counts

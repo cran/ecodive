@@ -1,4 +1,4 @@
-# Copyright (c) 2025 ecodive authors
+# Copyright (c) 2026 ecodive authors
 # Licensed under the MIT License: https://opensource.org/license/mit
 
 
@@ -8,7 +8,6 @@
 #' 
 #' @format A matrix of 4 samples (columns) x 6 genera (rows).
 #' @source Derived from The Human Microbiome Project dataset.
-#' <https://commonfund.nih.gov/hmp>
 "ex_counts"
 
 

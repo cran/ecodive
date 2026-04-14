@@ -1,6 +1,40 @@
+# ecodive 2.2.6
+
+* When using CLR normalization:
+
+    - Warns when zeros are detected and `pseudocount` is `NULL`.
+    - Then continues with `pseudocount <- min(counts[counts>0]) / 2`.
+
+## Breaking Changes
+
+* `norm` now defaults to `"none"` instead of `"percent"`.
+* `norm` parameter was removed from some beta diversity functions.
+
+
+
+# ecodive 2.2.4
+
+## Breaking Changes
+
+* The `rarefy()` function has been simplified:
+
+    - `drop = FALSE` now returns samples with original counts when sum < depth.
+    - `drop = TRUE` no longer drops zero-sum features - only zero-sum samples.
+    - `depth` can no longer be a fraction (only positive integers now).
+    - `n_samples` parameter has been removed.
+    - `warn` parameter has been added.
+
+
+
+# ecodive 2.2.3
+
+* Coerce counts to double before rarefaction.
+
+
+
 # ecodive 2.2.2
 
-* Drop explicit zeroes from sparse matrices after rarefaction.
+* Drop explicit zeros from sparse matrices after rarefaction.
 
 
 
